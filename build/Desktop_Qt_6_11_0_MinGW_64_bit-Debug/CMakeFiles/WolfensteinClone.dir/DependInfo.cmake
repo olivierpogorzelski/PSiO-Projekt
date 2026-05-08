@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "C:/Users/oli-v/Documents/WolfensteinClone/main.cpp" "CMakeFiles/WolfensteinClone.dir/main.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/main.cpp.obj.d"
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/main.cpp" "CMakeFiles/WolfensteinClone.dir/main.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/main.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

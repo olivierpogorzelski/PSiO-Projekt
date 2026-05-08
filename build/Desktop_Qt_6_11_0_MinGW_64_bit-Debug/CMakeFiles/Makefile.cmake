@@ -94,7 +94,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "C:/SFML/SFML-2.5.1/lib/cmake/SFML/SFMLSharedTargets-debug.cmake"
   "C:/SFML/SFML-2.5.1/lib/cmake/SFML/SFMLSharedTargets-release.cmake"
   "C:/SFML/SFML-2.5.1/lib/cmake/SFML/SFMLSharedTargets.cmake"
-  "C:/Users/oli-v/Documents/WolfensteinClone/CMakeLists.txt"
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/CMakeLists.txt"
   ".qtcreator/cmake-helper/maintenance_tool_provider.cmake"
   ".qtcreator/cmake-helper/package-manager.cmake"
   ".qtcreator/cmake-helper/qtcreator-project.cmake"

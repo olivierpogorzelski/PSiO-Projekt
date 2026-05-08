@@ -1,5 +1,5 @@
 CMakeFiles/WolfensteinClone.dir/main.cpp.obj: \
- C:\Users\oli-v\Documents\WolfensteinClone\main.cpp \
+ C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\main.cpp \
  C:/SFML/SFML-2.5.1/include/SFML/Graphics.hpp \
  C:/SFML/SFML-2.5.1/include/SFML/Window.hpp \
  C:/SFML/SFML-2.5.1/include/SFML/System.hpp \
