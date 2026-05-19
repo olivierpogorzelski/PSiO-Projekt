@@ -1,16 +1,27 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 using namespace std;
-//Dane podstawowe dotyczącze rozmiaru mapy
+
+// rozmiar mapy
 constexpr int mapWidth = 24;
 constexpr int mapHeight = 24;
-//Dane dotyczące wielkości okienka
-constexpr int screenWidth = 640;
-constexpr int screenHeight = 480;
 
-// Podstawowa mapa tymczasowego świata
+// wielkość okna
+constexpr int screenWidth = 1920;
+constexpr int screenHeight = 1080;
+
+// rozdzielczość wewnętrznego bufora (4 razy mniejsza dla wzrostu FPS)
+constexpr int bufferWidth = 480;
+constexpr int bufferHeight = 270;
+
+// rozmiary tekstur
+constexpr int texWidth = 64;
+constexpr int texHeight = 64;
+
+// podstawowa mapa tymczasowego świata
 int worldMap[mapWidth][mapHeight] =
     {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -41,16 +52,54 @@ int worldMap[mapWidth][mapHeight] =
 
 int main()
 {
-    // Ustawienie renderu okienka
-    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Test Raycastingu");
+    // ustawienie renderu okienka
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Test Raycastingu z Teksturami Naprawiony");
     window.setFramerateLimit(60);
 
-    //pozycja gracza
-    double posX=22, posY=12;
-    //wersor/kierunek kamery
-    double dirX=-1, dirY=0;
-    //pozycja kamery FOV
-    double planeX=0, planeY=0.66;
+    // pozycja gracza
+    double posX = 22, posY = 12;
+    // wersor/kierunek kamery
+    double dirX = -1, dirY = 0;
+    // pozycja kamery FOV
+    double planeX = 0, planeY = 0.66;
+
+    // generowanie tekstur
+    std::vector<std::vector<sf::Color>> textures(8, std::vector<sf::Color>(texWidth * texHeight));
+    for (int x = 0; x < texWidth; x++) {
+        for (int y = 0; y < texHeight; y++) {
+            int xorcolor = (x * 256 / texWidth) ^ (y * 256 / texHeight);
+            int xycolor = y * 128 / texHeight + x * 128 / texWidth;
+            textures[0][texWidth * y + x] = sf::Color(254, xorcolor, xorcolor); // Czerwona
+            textures[1][texWidth * y + x] = sf::Color(xycolor, 254, xycolor);   // Zielona
+            textures[2][texWidth * y + x] = sf::Color(xorcolor, xorcolor, 254); // Niebieska
+            textures[3][texWidth * y + x] = sf::Color(xorcolor, xorcolor, xorcolor); // Szara
+            textures[4][texWidth * y + x] = sf::Color(254, 254, xorcolor);      // Żółta
+            textures[5][texWidth * y + x] = sf::Color(80, 80, 80);              // Podłoga
+            textures[6][texWidth * y + x] = sf::Color(40, 40, 40);              // Sufit
+        }
+    }
+
+    // tablica z buforem pikseli, teraz w znacznie mniejszej rozdzielczości
+    std::vector<sf::Uint8> screenPixels(bufferWidth * bufferHeight * 4, 0);
+    sf::Texture screenTexture;
+    screenTexture.create(bufferWidth, bufferHeight);
+
+    // wyłączamy wygładzanie, aby piksele po powiększeniu były ostre (można wyłączyć, ale to jest dla klimatu gier lat 90)
+    screenTexture.setSmooth(false);
+
+    sf::Sprite screenSprite(screenTexture);
+    // Skalujemy mały bufor tak, aby wypełnił całe duże okno Full HD
+    screenSprite.setScale((float)screenWidth / bufferWidth, (float)screenHeight / bufferHeight);
+
+    // funkcja pomocnicza do zapisu pikseli do zoptymalizowanego bufora
+    auto setPixel = [&](int x, int y, sf::Color color) {
+        if (x < 0 || x >= bufferWidth || y < 0 || y >= bufferHeight) return;
+        int index = (y * bufferWidth + x) * 4;
+        screenPixels[index]     = color.r;
+        screenPixels[index + 1] = color.g;
+        screenPixels[index + 2] = color.b;
+        screenPixels[index + 3] = 255;
+    };
 
     sf::Clock clock; // zegar, za pomocą którego liczymy odstępy między klatkami
 
@@ -63,13 +112,10 @@ int main()
 
         window.clear(sf::Color::Black);
 
-        // tablica z rysowanymi liniami, jest 2 razy większa bo potrzebne są dwa wierzchołki
-        sf::VertexArray lines(sf::Lines, screenWidth * 2);
-
         // pętla w której liczymy każdą linię dla poszczególnego x z podglądu kamery
-        for (int x = 0; x < screenWidth; x++){
+        for (int x = 0; x < bufferWidth; x++){
             // pozycja x dla kamery
-            double cameraX = 2*x/double(screenWidth) - 1;
+            double cameraX = 2 * x / double(bufferWidth) - 1;
             // kierunki promienia
             double rayDirX = dirX + planeX * cameraX;
             double rayDirY = dirY + planeY * cameraX;
@@ -92,7 +138,7 @@ int main()
             int stepY; // -1 lub 1 dla przodu/tyłu
 
             // czy promień trafił ścianę? jeśli tak, stan zmieni się na 1
-            int hit=0;
+            int hit = 0;
             // czy to była ściana z przodu/tyłu czy z lewa/prawa?
             int side;
 
@@ -143,38 +189,91 @@ int main()
             else          perpWallDist = (sideDistY - deltaDistY);
 
             // długość rysowanej linii
-            int lineHeight = (int)(screenHeight / perpWallDist);
+            int lineHeight = (int)(bufferHeight / perpWallDist);
 
             // znajdujemy najniższy i najwyższy piksel, który chcemy wypełnić linią.
-            int drawStart = -lineHeight / 2 + screenHeight / 2;
+            int drawStart = -lineHeight / 2 + bufferHeight / 2;
             if(drawStart < 0) drawStart = 0;
-            int drawEnd = lineHeight / 2 + screenHeight / 2;
-            if(drawEnd >= screenHeight) drawEnd = screenHeight - 1;
+            int drawEnd = lineHeight / 2 + bufferHeight / 2;
+            if(drawEnd >= bufferHeight) drawEnd = bufferHeight - 1;
 
-            // wybór koloru
-            sf::Color color;
-            switch(worldMap[mapX][mapY])
-            {
-            case 1:  color = sf::Color::Red;  break;
-            case 2:  color = sf::Color::Green;  break;
-            case 3:  color = sf::Color::Blue;   break;
-            case 4:  color = sf::Color::White;  break;
-            default: color = sf::Color::Yellow; break;
+            int texNum = worldMap[mapX][mapY] - 1;
+
+            double wallX;
+            if (side == 0) wallX = posY + perpWallDist * rayDirY;
+            else           wallX = posX + perpWallDist * rayDirX;
+            wallX -= floor((wallX));
+
+            int texX = int(wallX * double(texWidth));
+            if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+            if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+
+            double step = 1.0 * texHeight / lineHeight;
+            double texPos = (drawStart - bufferHeight / 2 + lineHeight / 2) * step;
+
+            // obliczanie pozycji podłogi/sufitu w świecie PRZED uruchomieniem pętli renderujących piksele
+            double floorXWall, floorYWall;
+            if(side == 0 && rayDirX > 0) { floorXWall = mapX; floorYWall = mapY + wallX; }
+            else if(side == 0 && rayDirX < 0) { floorXWall = mapX + 1.0; floorYWall = mapY + wallX; }
+            else if(side == 1 && rayDirY > 0) { floorXWall = mapX + wallX; floorYWall = mapY; }
+            else { floorXWall = mapX + wallX; floorYWall = mapY + 1.0; }
+
+            // od góry ekranu do początku ściany
+            for (int y = 0; y < drawStart; y++) {
+                int floorY = bufferHeight - y - 1; // Mapowanie symetryczne dla wysokości
+                if (2 * floorY - bufferHeight == 0) continue; // Zabezpieczenie przed horyzontem (dzielenie przez 0)
+
+                double currentDist = bufferHeight / (2.0 * floorY - bufferHeight);
+                double weight = currentDist / perpWallDist;
+
+                double currentCeilX = weight * floorXWall + (1.0 - weight) * posX;
+                double currentCeilY = weight * floorYWall + (1.0 - weight) * posY;
+
+                int ceilTexX = int(currentCeilX * texWidth) % texWidth;
+                int ceilTexY = int(currentCeilY * texHeight) % texHeight;
+                if(ceilTexX < 0) ceilTexX += texWidth;
+                if(ceilTexY < 0) ceilTexY += texHeight;
+
+                setPixel(x, y, textures[6][texWidth * ceilTexY + ceilTexX]);
             }
 
-            // różne cieniowania dla x i y
-            if (side == 1) {
-                color.r /= 2; color.g /= 2; color.b /= 2;
+            // od początku ściany do jej końca
+            for (int y = drawStart; y < drawEnd; y++) {
+                int texY = (int)texPos & (texHeight - 1);
+                texPos += step;
+                sf::Color color = textures[texNum][texWidth * texY + texX];
+
+                // różne cieniowania dla x i y
+                if (side == 1) {
+                    color.r /= 2; color.g /= 2; color.b /= 2;
+                }
+
+                setPixel(x, y, color);
             }
 
-            // tworzymy wektory
-            lines[x * 2].position = sf::Vector2f(static_cast<float>(x), static_cast<float>(drawStart));
-            lines[x * 2].color = color;
-            lines[x * 2 + 1].position = sf::Vector2f(static_cast<float>(x), static_cast<float>(drawEnd));
-            lines[x * 2 + 1].color = color;
+            // od końca ściany do samego dołu ekranu
+            for(int y = drawEnd; y < bufferHeight; y++) {
+                if (2 * y - bufferHeight == 0) continue; // Zabezpieczenie przed horyzontem (dzielenie przez 0)
+
+                double currentDist = bufferHeight / (2.0 * y - bufferHeight);
+                double weight = currentDist / perpWallDist;
+
+                double currentFloorX = weight * floorXWall + (1.0 - weight) * posX;
+                double currentFloorY = weight * floorYWall + (1.0 - weight) * posY;
+
+                int floorTexX = int(currentFloorX * texWidth) % texWidth;
+                int floorTexY = int(currentFloorY * texHeight) % texHeight;
+                if(floorTexX < 0) floorTexX += texWidth;
+                if(floorTexY < 0) floorTexY += texHeight;
+
+                setPixel(x, y, textures[5][texWidth * floorTexY + floorTexX]);
+            }
         }
 
-        window.draw(lines);
+        // aktualizacja zawartości tekstury bufora
+        screenTexture.update(screenPixels.data());
+        // rysujemy powiększonego sprite'a na pełnym ekranie
+        window.draw(screenSprite);
 
         // różnica czasu między klatkami
         double frameTime = clock.restart().asSeconds();
