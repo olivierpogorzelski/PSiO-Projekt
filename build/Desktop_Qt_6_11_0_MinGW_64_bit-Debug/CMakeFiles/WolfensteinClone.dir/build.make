@@ -83,14 +83,99 @@ CMakeFiles/WolfensteinClone.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/WolfensteinClone.dir/main.cpp.s"
 	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\main.cpp -o CMakeFiles\WolfensteinClone.dir\main.cpp.s
 
+CMakeFiles/WolfensteinClone.dir/Game.cpp.obj: CMakeFiles/WolfensteinClone.dir/flags.make
+CMakeFiles/WolfensteinClone.dir/Game.cpp.obj: CMakeFiles/WolfensteinClone.dir/includes_CXX.rsp
+CMakeFiles/WolfensteinClone.dir/Game.cpp.obj: C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Game.cpp
+CMakeFiles/WolfensteinClone.dir/Game.cpp.obj: CMakeFiles/WolfensteinClone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/WolfensteinClone.dir/Game.cpp.obj"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/WolfensteinClone.dir/Game.cpp.obj -MF CMakeFiles\WolfensteinClone.dir\Game.cpp.obj.d -o CMakeFiles\WolfensteinClone.dir\Game.cpp.obj -c C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Game.cpp
+
+CMakeFiles/WolfensteinClone.dir/Game.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/WolfensteinClone.dir/Game.cpp.i"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Game.cpp > CMakeFiles\WolfensteinClone.dir\Game.cpp.i
+
+CMakeFiles/WolfensteinClone.dir/Game.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/WolfensteinClone.dir/Game.cpp.s"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Game.cpp -o CMakeFiles\WolfensteinClone.dir\Game.cpp.s
+
+CMakeFiles/WolfensteinClone.dir/Map.cpp.obj: CMakeFiles/WolfensteinClone.dir/flags.make
+CMakeFiles/WolfensteinClone.dir/Map.cpp.obj: CMakeFiles/WolfensteinClone.dir/includes_CXX.rsp
+CMakeFiles/WolfensteinClone.dir/Map.cpp.obj: C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Map.cpp
+CMakeFiles/WolfensteinClone.dir/Map.cpp.obj: CMakeFiles/WolfensteinClone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/WolfensteinClone.dir/Map.cpp.obj"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/WolfensteinClone.dir/Map.cpp.obj -MF CMakeFiles\WolfensteinClone.dir\Map.cpp.obj.d -o CMakeFiles\WolfensteinClone.dir\Map.cpp.obj -c C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Map.cpp
+
+CMakeFiles/WolfensteinClone.dir/Map.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/WolfensteinClone.dir/Map.cpp.i"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Map.cpp > CMakeFiles\WolfensteinClone.dir\Map.cpp.i
+
+CMakeFiles/WolfensteinClone.dir/Map.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/WolfensteinClone.dir/Map.cpp.s"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Map.cpp -o CMakeFiles\WolfensteinClone.dir\Map.cpp.s
+
+CMakeFiles/WolfensteinClone.dir/Player.cpp.obj: CMakeFiles/WolfensteinClone.dir/flags.make
+CMakeFiles/WolfensteinClone.dir/Player.cpp.obj: CMakeFiles/WolfensteinClone.dir/includes_CXX.rsp
+CMakeFiles/WolfensteinClone.dir/Player.cpp.obj: C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Player.cpp
+CMakeFiles/WolfensteinClone.dir/Player.cpp.obj: CMakeFiles/WolfensteinClone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/WolfensteinClone.dir/Player.cpp.obj"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/WolfensteinClone.dir/Player.cpp.obj -MF CMakeFiles\WolfensteinClone.dir\Player.cpp.obj.d -o CMakeFiles\WolfensteinClone.dir\Player.cpp.obj -c C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Player.cpp
+
+CMakeFiles/WolfensteinClone.dir/Player.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/WolfensteinClone.dir/Player.cpp.i"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Player.cpp > CMakeFiles\WolfensteinClone.dir\Player.cpp.i
+
+CMakeFiles/WolfensteinClone.dir/Player.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/WolfensteinClone.dir/Player.cpp.s"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Player.cpp -o CMakeFiles\WolfensteinClone.dir\Player.cpp.s
+
+CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj: CMakeFiles/WolfensteinClone.dir/flags.make
+CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj: CMakeFiles/WolfensteinClone.dir/includes_CXX.rsp
+CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj: C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Renderer.cpp
+CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj: CMakeFiles/WolfensteinClone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj -MF CMakeFiles\WolfensteinClone.dir\Renderer.cpp.obj.d -o CMakeFiles\WolfensteinClone.dir\Renderer.cpp.obj -c C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Renderer.cpp
+
+CMakeFiles/WolfensteinClone.dir/Renderer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/WolfensteinClone.dir/Renderer.cpp.i"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Renderer.cpp > CMakeFiles\WolfensteinClone.dir\Renderer.cpp.i
+
+CMakeFiles/WolfensteinClone.dir/Renderer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/WolfensteinClone.dir/Renderer.cpp.s"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Renderer.cpp -o CMakeFiles\WolfensteinClone.dir\Renderer.cpp.s
+
+CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj: CMakeFiles/WolfensteinClone.dir/flags.make
+CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj: CMakeFiles/WolfensteinClone.dir/includes_CXX.rsp
+CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj: C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Enemy.cpp
+CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj: CMakeFiles/WolfensteinClone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj -MF CMakeFiles\WolfensteinClone.dir\Enemy.cpp.obj.d -o CMakeFiles\WolfensteinClone.dir\Enemy.cpp.obj -c C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Enemy.cpp
+
+CMakeFiles/WolfensteinClone.dir/Enemy.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/WolfensteinClone.dir/Enemy.cpp.i"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Enemy.cpp > CMakeFiles\WolfensteinClone.dir\Enemy.cpp.i
+
+CMakeFiles/WolfensteinClone.dir/Enemy.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/WolfensteinClone.dir/Enemy.cpp.s"
+	C:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Enemy.cpp -o CMakeFiles\WolfensteinClone.dir\Enemy.cpp.s
+
 # Object files for target WolfensteinClone
 WolfensteinClone_OBJECTS = \
-"CMakeFiles/WolfensteinClone.dir/main.cpp.obj"
+"CMakeFiles/WolfensteinClone.dir/main.cpp.obj" \
+"CMakeFiles/WolfensteinClone.dir/Game.cpp.obj" \
+"CMakeFiles/WolfensteinClone.dir/Map.cpp.obj" \
+"CMakeFiles/WolfensteinClone.dir/Player.cpp.obj" \
+"CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj" \
+"CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj"
 
 # External object files for target WolfensteinClone
 WolfensteinClone_EXTERNAL_OBJECTS =
 
 WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/main.cpp.obj
+WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/Game.cpp.obj
+WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/Map.cpp.obj
+WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/Player.cpp.obj
+WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj
+WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj
 WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/build.make
 WolfensteinClone.exe: C:/SFML/SFML-2.5.1/lib/libsfml-graphics-d.a
 WolfensteinClone.exe: C:/SFML/SFML-2.5.1/lib/libsfml-window-d.a
@@ -98,7 +183,7 @@ WolfensteinClone.exe: C:/SFML/SFML-2.5.1/lib/libsfml-system-d.a
 WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/linkLibs.rsp
 WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/objects1.rsp
 WolfensteinClone.exe: CMakeFiles/WolfensteinClone.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable WolfensteinClone.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\build\Desktop_Qt_6_11_0_MinGW_64_bit-Debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable WolfensteinClone.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\WolfensteinClone.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

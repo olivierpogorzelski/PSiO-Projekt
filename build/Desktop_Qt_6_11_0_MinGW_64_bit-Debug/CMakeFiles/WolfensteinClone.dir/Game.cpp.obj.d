@@ -1,5 +1,5 @@
-CMakeFiles/WolfensteinClone.dir/main.cpp.obj: \
- C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\main.cpp \
+CMakeFiles/WolfensteinClone.dir/Game.cpp.obj: \
+ C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Game.cpp \
  C:\Users\oli-v\Documents\GitHub\PSiO-Projekt\Game.hpp \
  C:/SFML/SFML-2.5.1/include/SFML/Graphics.hpp \
  C:/SFML/SFML-2.5.1/include/SFML/Window.hpp \

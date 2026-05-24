@@ -8,6 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Enemy.cpp" "CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj.d"
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Game.cpp" "CMakeFiles/WolfensteinClone.dir/Game.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/Game.cpp.obj.d"
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Map.cpp" "CMakeFiles/WolfensteinClone.dir/Map.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/Map.cpp.obj.d"
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Player.cpp" "CMakeFiles/WolfensteinClone.dir/Player.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/Player.cpp.obj.d"
+  "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/Renderer.cpp" "CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj.d"
   "C:/Users/oli-v/Documents/GitHub/PSiO-Projekt/main.cpp" "CMakeFiles/WolfensteinClone.dir/main.cpp.obj" "gcc" "CMakeFiles/WolfensteinClone.dir/main.cpp.obj.d"
   )
 

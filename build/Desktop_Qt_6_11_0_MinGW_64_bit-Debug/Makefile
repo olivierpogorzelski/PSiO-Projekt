@@ -128,6 +128,126 @@ WolfensteinClone/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/build
 .PHONY : WolfensteinClone/fast
 
+Enemy.obj: Enemy.cpp.obj
+.PHONY : Enemy.obj
+
+# target to build an object file
+Enemy.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Enemy.cpp.obj
+.PHONY : Enemy.cpp.obj
+
+Enemy.i: Enemy.cpp.i
+.PHONY : Enemy.i
+
+# target to preprocess a source file
+Enemy.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Enemy.cpp.i
+.PHONY : Enemy.cpp.i
+
+Enemy.s: Enemy.cpp.s
+.PHONY : Enemy.s
+
+# target to generate assembly for a file
+Enemy.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Enemy.cpp.s
+.PHONY : Enemy.cpp.s
+
+Game.obj: Game.cpp.obj
+.PHONY : Game.obj
+
+# target to build an object file
+Game.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Game.cpp.obj
+.PHONY : Game.cpp.obj
+
+Game.i: Game.cpp.i
+.PHONY : Game.i
+
+# target to preprocess a source file
+Game.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Game.cpp.i
+.PHONY : Game.cpp.i
+
+Game.s: Game.cpp.s
+.PHONY : Game.s
+
+# target to generate assembly for a file
+Game.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Game.cpp.s
+.PHONY : Game.cpp.s
+
+Map.obj: Map.cpp.obj
+.PHONY : Map.obj
+
+# target to build an object file
+Map.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Map.cpp.obj
+.PHONY : Map.cpp.obj
+
+Map.i: Map.cpp.i
+.PHONY : Map.i
+
+# target to preprocess a source file
+Map.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Map.cpp.i
+.PHONY : Map.cpp.i
+
+Map.s: Map.cpp.s
+.PHONY : Map.s
+
+# target to generate assembly for a file
+Map.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Map.cpp.s
+.PHONY : Map.cpp.s
+
+Player.obj: Player.cpp.obj
+.PHONY : Player.obj
+
+# target to build an object file
+Player.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Player.cpp.obj
+.PHONY : Player.cpp.obj
+
+Player.i: Player.cpp.i
+.PHONY : Player.i
+
+# target to preprocess a source file
+Player.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Player.cpp.i
+.PHONY : Player.cpp.i
+
+Player.s: Player.cpp.s
+.PHONY : Player.s
+
+# target to generate assembly for a file
+Player.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Player.cpp.s
+.PHONY : Player.cpp.s
+
+Renderer.obj: Renderer.cpp.obj
+.PHONY : Renderer.obj
+
+# target to build an object file
+Renderer.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Renderer.cpp.obj
+.PHONY : Renderer.cpp.obj
+
+Renderer.i: Renderer.cpp.i
+.PHONY : Renderer.i
+
+# target to preprocess a source file
+Renderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Renderer.cpp.i
+.PHONY : Renderer.cpp.i
+
+Renderer.s: Renderer.cpp.s
+.PHONY : Renderer.s
+
+# target to generate assembly for a file
+Renderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\WolfensteinClone.dir\build.make CMakeFiles/WolfensteinClone.dir/Renderer.cpp.s
+.PHONY : Renderer.cpp.s
+
 main.obj: main.cpp.obj
 .PHONY : main.obj
 
@@ -161,6 +281,21 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... WolfensteinClone
+	@echo ... Enemy.obj
+	@echo ... Enemy.i
+	@echo ... Enemy.s
+	@echo ... Game.obj
+	@echo ... Game.i
+	@echo ... Game.s
+	@echo ... Map.obj
+	@echo ... Map.i
+	@echo ... Map.s
+	@echo ... Player.obj
+	@echo ... Player.i
+	@echo ... Player.s
+	@echo ... Renderer.obj
+	@echo ... Renderer.i
+	@echo ... Renderer.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
