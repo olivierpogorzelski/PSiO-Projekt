@@ -276,8 +276,8 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
     screenTexture.update(screenPixels.data());
     window.draw(screenSprite);
     
-    drawHud(window);
     drawWeapon(window, player);
+    drawHud(window);
 }
 
 // rysowanie bazowego interfejsu
@@ -307,10 +307,10 @@ void Renderer::drawWeapon(sf::RenderWindow& window, const Player& player) {
         animOffset = std::sin(player.getAttackTimer() / 0.3 * 3.14159) * 150.0;
     }
     
-    sword.setPoint(0, sf::Vector2f(1400.0f - animOffset, 1080.0f));
+    sword.setPoint(0, sf::Vector2f(1400.0f - animOffset, 1000.0f));
     sword.setPoint(1, sf::Vector2f(1600.0f - animOffset, 600.0f + animOffset));
     sword.setPoint(2, sf::Vector2f(1650.0f - animOffset, 620.0f + animOffset));
-    sword.setPoint(3, sf::Vector2f(1500.0f - animOffset, 1080.0f));
+    sword.setPoint(3, sf::Vector2f(1500.0f - animOffset, 1000.0f));
     
     sword.setFillColor(sf::Color(150, 150, 150));
     sword.setOutlineThickness(2.0f);
