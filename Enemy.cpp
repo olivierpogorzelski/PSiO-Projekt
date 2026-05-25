@@ -1,14 +1,44 @@
 #include "Enemy.hpp"
-
+#include "Map.hpp"
+#include "Player.hpp"
+#include <cmath>
 // inicjalizacja współrzędnych tekstury i zdrowia przeciwnika
 Enemy::Enemy(double startX, double startY, int textureId)
-    : x(startX), y(startY), texture(textureId), hp(100) {}
+    : x(startX), y(startY), texture(textureId), hp(100), attackTimer(0.0), attackDamage(15) {}
 
-// w przyszłości znajdzie się tutaj jakieś ai
-void Enemy::update(double frameTime) {
-    // na razie nic tu nie ma
+
+
+void Enemy::update(double frameTime, Player& player, const Map& map) {
+    if (isDead()) return;
+
+    // Zmniejszamy cooldown ataku w każdej klatce
+    if (attackTimer > 0.0) {
+        attackTimer -= frameTime;
+    }
+
+    double dirX = player.getX() - x;
+    double dirY = player.getY() - y;
+    double distance = std::sqrt(dirX * dirX + dirY * dirY);
+
+    // 1. Logika poruszania się (goni gracz, jeśli jest w zasięgu wzroku)
+    if (distance < 12.0 && distance > 0.8) {
+        dirX /= distance;
+        dirY /= distance;
+
+        double moveSpeed = 1.8;
+        double nextX = x + dirX * moveSpeed * frameTime;
+        double nextY = y + dirY * moveSpeed * frameTime;
+
+        if (map.getTile(int(nextX), int(y)) == 0) x = nextX;
+        if (map.getTile(int(x), int(nextY)) == 0) y = nextY;
+    }
+
+    // 2. LOGIKA ATAKU: Jeśli wróg stoi tuż przy graczu i minął cooldown
+    if (distance <= 1.0 && attackTimer <= 0.0) {
+        player.takeDamage(attackDamage);
+        attackTimer = 1.0; // Wróg może uderzyć ponownie dopiero za 1 sekundę
+    }
 }
-
 // zadawanie obrażeń wrogowi
 void Enemy::takeDamage(int amount) {
     hp -= amount;

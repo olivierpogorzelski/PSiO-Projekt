@@ -72,3 +72,9 @@ void Player::attack(Map& map) {
         }
     }
 }
+void Player::takeDamage(int amount) {
+    hp -= amount;
+    if (hp < 0) hp = 0;
+}
+
+

@@ -10,7 +10,7 @@ public:
     int getTile(int x, int y) const;
     int getWidth() const;
     int getHeight() const;
-    void update(double frameTime);
+    void update(double frameTime, Player& player);
 
     std::vector<Enemy>& getEnemies();
     const std::vector<Enemy>& getEnemies() const;

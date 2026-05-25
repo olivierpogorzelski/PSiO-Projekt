@@ -54,13 +54,19 @@ void Game::processEvents() {
 }
 
 // update logiki gry np fizyki ai zależnie od stanu
+
 void Game::update(double frameTime) {
     if (state == GameState::playing) {
         player.update(frameTime, map);
-        map.update(frameTime);
+        map.update(frameTime, player); // Przekazujemy obiekt gracza do mapy
+
+        // Opcjonalnie: Jeśli gracz zginie, zmień stan gry
+        if (player.isDead()) {
+            // state = GameState::gameOver; (gdy dorobisz taki stan)
+            window.close(); // Na razie po prostu zamykamy grę z braku ekranu śmierci
+        }
     }
 }
-
 // rysowanie odpowiedniego ekranu
 void Game::render() {
     if (state == GameState::menu) {

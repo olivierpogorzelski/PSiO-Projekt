@@ -64,12 +64,23 @@ const std::vector<Enemy>& Map::getEnemies() const {
 }
 
 // czyszczenie martwych wrogów
-void Map::update(double frameTime) {
+/*void Map::update(double frameTime) {
     for (auto it = enemies.begin(); it != enemies.end(); ) {
         if (it->isDead()) {
             it = enemies.erase(it);
         } else {
             it->update(frameTime);
+            ++it;
+        }
+    }
+}*/
+void Map::update(double frameTime, Player& player) { // Przekazujemy całego gracza przez referencję
+    for (auto it = enemies.begin(); it != enemies.end(); ) {
+        if (it->isDead()) {
+            it = enemies.erase(it);
+        } else {
+            // Przekazujemy frameTime, gracza oraz tę mapę (*this)
+            it->update(frameTime, player, *this);
             ++it;
         }
     }
