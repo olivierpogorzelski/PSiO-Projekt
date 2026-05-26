@@ -25,12 +25,22 @@ void Enemy::update(double frameTime, Player& player, const Map& map) {
         dirX /= distance;
         dirY /= distance;
 
-        double moveSpeed = 1.8;
+        double moveSpeed = 0.8;
         double nextX = x + dirX * moveSpeed * frameTime;
         double nextY = y + dirY * moveSpeed * frameTime;
 
-        if (map.getTile(int(nextX), int(y)) == 0) x = nextX;
-        if (map.getTile(int(x), int(nextY)) == 0) y = nextY;
+        //if (map.getTile(int(nextX), int(y)) == 0) x = nextX;
+        //if (map.getTile(int(x), int(nextY)) == 0) y = nextY;
+        double bufferX = (dirX > 0) ? 0.2 : -0.2;
+        double bufferY = (dirY > 0) ? 0.2 : -0.2;
+
+        // Przy sprawdzaniu kafla mapy uwzględniamy wyliczony bufor
+        if (map.getTile(int(nextX + bufferX), int(y)) == 0) {
+            x = nextX;
+        }
+        if (map.getTile(int(x), int(nextY + bufferY)) == 0) {
+            y = nextY;
+        }
     }
 
     // 2. LOGIKA ATAKU: Jeśli wróg stoi tuż przy graczu i minął cooldown

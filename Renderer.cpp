@@ -218,7 +218,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
     // rysowanie wrogów metodą lodeva
     const auto& enemies = map.getEnemies();
     size_t numEnemies = enemies.size();
-    
+    if (numEnemies > 0){
     std::vector<int> enemyOrder(numEnemies);
     std::vector<double> enemyDistance(numEnemies);
     
@@ -271,27 +271,36 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
                 }
             }
         }
-    }
+    }}
 
     screenTexture.update(screenPixels.data());
     window.draw(screenSprite);
-    
     drawWeapon(window, player);
-    drawHud(window);
+    drawHud(window,player);
 }
 
 // rysowanie bazowego interfejsu
-void Renderer::drawHud(sf::RenderWindow& window) {
+void Renderer::drawHud(sf::RenderWindow& window, const Player& player) {
     sf::RectangleShape hudBar(sf::Vector2f(1920.0f, 80.0f));
     hudBar.setPosition(0.0f, 1000.0f);
     hudBar.setFillColor(sf::Color(30, 30, 30));
-    
-    // prosty pasek zdrowia tylko wizualny na razie
-    sf::RectangleShape healthBar(sf::Vector2f(300.0f, 40.0f));
+    sf::RectangleShape healthBackground(sf::Vector2f(300.0f, 40.0f));
+    healthBackground.setPosition(50.0f, 1020.0f);
+    healthBackground.setFillColor(sf::Color(50, 0, 0));
+    // Rzutujemy hp na float, żeby dzielenie nie ucięło nam ułamków (dzielenie całkowite)
+    float maxBarWidth = 300.0f;
+    float currentBarWidth = maxBarWidth * (static_cast<float>(player.getHp()) / 100.0f);
+    // Zabezpieczenie: pasek nie może mieć ujemnej szerokości
+    if (currentBarWidth < 0.0f) currentBarWidth = 0.0f;
+    sf::RectangleShape healthBar(sf::Vector2f(currentBarWidth, 40.0f));
     healthBar.setPosition(50.0f, 1020.0f);
     healthBar.setFillColor(sf::Color(200, 0, 0));
     
+    // Najpierw rysujemy wielkie szare tło całego interfejsu
     window.draw(hudBar);
+    // Potem rysujemy ciemnoczerwony podkład paska zdrowia
+    window.draw(healthBackground);
+    // Na samym końcu nakładamy właściwy, jasnoczerwony pasek zdrowia
     window.draw(healthBar);
 }
 

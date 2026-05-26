@@ -3,7 +3,7 @@
 
 // inicjalizacja okna gracza i stanu
 Game::Game()
-    : window(sf::VideoMode(screenWidth, screenHeight), "Test Raycastingu z Teksturami Naprawiony"),
+    : window(sf::VideoMode(screenWidth, screenHeight), "Test Raycastingu z Teksturami Naprawiony", sf::Style::Fullscreen),
       player(22, 12, -1, 0, 0, 0.66), 
       state(GameState::menu)
 {
@@ -45,13 +45,19 @@ void Game::processEvents() {
                     player.attack(map);
                 }
             } else if (state == GameState::paused) {
-                if (event.key.code == sf::Keyboard::Escape) {
-                    state = GameState::playing;
+                    // Jeśli gracz wciśnie ENTER wraca do gry
+                    if (event.key.code == sf::Keyboard::Enter) {
+                        state = GameState::playing;
+                    }
+                    // Jeśli gracz wciśnie ESCAPE będąc w pauzie całkowicie zamykamy grę
+                    else if (event.key.code == sf::Keyboard::Escape) {
+                        window.close();
+                    }
                 }
             }
         }
     }
-}
+
 
 // update logiki gry np fizyki ai zależnie od stanu
 
