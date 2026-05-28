@@ -48,7 +48,7 @@ void Renderer::setPixel(int x, int y, sf::Color color) {
     screenPixels[index + 3] = 255;
 }
 
-// prosty algorytm sortujący wrogów od najdalszego do najbliższego
+// prosty algorytm sortujący wrogów i przedmioty od najdalszego do najbliższego
 void Renderer::sortSprites(std::vector<int>& order, std::vector<double>& dist) {
     std::vector<std::pair<double, int>> sprites(order.size());
     for(size_t i = 0; i < order.size(); i++) {
@@ -215,7 +215,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
         zBuffer[x] = perpWallDist;
     }
 
-    // rysowanie wrogów metodą lodeva
+    /*// rysowanie wrogów metodą lodeva
     const auto& enemies = map.getEnemies();
     size_t numEnemies = enemies.size();
     if (numEnemies > 0){
@@ -271,13 +271,96 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
                 }
             }
         }
-    }}
+    }}*/
+    // Tworzymy strukturę pomocniczą tylko na potrzeby tej funkcji
+    struct TempSprite {
+        double x;
+        double y;
+        int texture;
+    };
+    std::vector<TempSprite> allSprites;
 
+    // Kopia wrogów do wspólnej paczki
+    const auto& enemies = map.getEnemies();
+    for(const auto& enemy : enemies) {
+        allSprites.push_back({ enemy.getX(), enemy.getY(), enemy.getTexture() });
+    }
+
+    // Kopia niepodniesionych przedmiotów do tej samej wspólnej paczki
+    const auto& items = map.getItems();
+    for(const auto& item : items) {
+        if (!item.isPickedUp) {
+            allSprites.push_back({ item.x, item.y, item.texture });
+        }
+    }
+    //  WSPÓLNE SORTOWANIE
+    size_t numSprites = allSprites.size();
+    if (numSprites > 0) {
+        std::vector<int> spriteOrder(numSprites);
+        std::vector<double> spriteDistance(numSprites);
+
+        // Liczymy dystans dla WSZYSTKIEGO na raz
+        for(size_t i = 0; i < numSprites; i++) {
+            spriteOrder[i] = i;
+            double dx = posX - allSprites[i].x;
+            double dy = posY - allSprites[i].y;
+            spriteDistance[i] = (dx * dx + dy * dy);
+        }
+
+
+        sortSprites(spriteOrder, spriteDistance);
+
+
+        // JEDNA WSPÓLNA PĘTLA RYSUJĄCA METODĄ LODEVA
+
+        for(size_t i = 0; i < numSprites; i++) {
+            int currentIdx = spriteOrder[i];
+            double spriteX = allSprites[currentIdx].x - posX;
+            double spriteY = allSprites[currentIdx].y - posY;
+
+            double invDet = 1.0 / (planeX * dirY - dirX * planeY);
+            double transformX = invDet * (dirY * spriteX - dirX * spriteY);
+            double transformY = invDet * (-planeY * spriteX + planeX * spriteY);
+
+            int spriteScreenX = int((bufferWidth / 2) * (1 + transformX / transformY));
+
+            int spriteHeight = std::abs(int(bufferHeight / transformY));
+            int drawStartY = -spriteHeight / 2 + bufferHeight / 2;
+            if(drawStartY < 0) drawStartY = 0;
+            int drawEndY = spriteHeight / 2 + bufferHeight / 2;
+            if(drawEndY >= bufferHeight) drawEndY = bufferHeight - 1;
+
+            int spriteWidth = std::abs(int(bufferHeight / transformY));
+            int drawStartX = -spriteWidth / 2 + spriteScreenX;
+            if(drawStartX < 0) drawStartX = 0;
+            int drawEndX = spriteWidth / 2 + spriteScreenX;
+            if(drawEndX >= bufferWidth) drawEndX = bufferWidth - 1;
+
+            for(int stripe = drawStartX; stripe < drawEndX; stripe++) {
+                int texX = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+
+                if(transformY > 0 && stripe > 0 && stripe < bufferWidth && transformY < zBuffer[stripe]) {
+                    for(int y = drawStartY; y < drawEndY; y++) {
+                        int d = (y) * 256 - bufferHeight * 128 + spriteHeight * 128;
+                        int texY = ((d * texHeight) / spriteHeight) / 256;
+
+                        // Pobieramy teksturę ze wspólnego kontenera
+                        sf::Color color = textures[allSprites[currentIdx].texture][texWidth * texY + texX];
+
+                        if(color.r != 0 || color.g != 0 || color.b != 0) {
+                            setPixel(stripe, y, color);
+                        }
+                    }
+                }
+            }
+        }
+    }
     screenTexture.update(screenPixels.data());
     window.draw(screenSprite);
     drawWeapon(window, player);
     drawHud(window,player);
 }
+
 
 // rysowanie bazowego interfejsu
 void Renderer::drawHud(sf::RenderWindow& window, const Player& player) {

@@ -3,8 +3,8 @@
 #include "Player.hpp"
 #include <cmath>
 // inicjalizacja współrzędnych tekstury i zdrowia przeciwnika
-Enemy::Enemy(double startX, double startY, int textureId)
-    : x(startX), y(startY), texture(textureId), hp(100), attackTimer(0.0), attackDamage(15) {}
+Enemy::Enemy(double startX, double startY, int textureE)
+    : x(startX), y(startY), texture(textureE), hp(100), attackTimer(0.0), attackDamage(15) {}
 
 
 

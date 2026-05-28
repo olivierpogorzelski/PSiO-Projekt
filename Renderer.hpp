@@ -13,6 +13,11 @@ public:
 
 
 private:
+    struct RenderableSprite {
+        double x;
+        double y;
+        int textureIndex;
+    };
     void generateTextures();
     void setPixel(int x, int y, sf::Color color);
     void sortSprites(std::vector<int>& order, std::vector<double>& dist);

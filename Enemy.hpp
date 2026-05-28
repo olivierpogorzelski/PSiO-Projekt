@@ -5,7 +5,7 @@ class Player;
 // klasa przeciwnika na mapie
 class Enemy {
 public:
-    Enemy(double startX, double startY, int textureId);
+    Enemy(double startX, double startY, int textureE);
 
     void update(double frameTime, Player& player, const Map& map);
     void takeDamage(int amount);

@@ -10,7 +10,7 @@ public:
     void attack(Map& map);
     void takeDamage(int amount);
 
-
+    void addHp(int HP);
     double getX() const { return posX; }
     double getY() const { return posY; }
     double getDirX() const { return dirX; }
