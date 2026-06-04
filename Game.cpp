@@ -3,7 +3,7 @@
 
 // inicjalizacja okna gracza i stanu
 Game::Game()
-    : window(sf::VideoMode(screenWidth, screenHeight), "Test Raycastingu z Teksturami Naprawiony"),
+    : window(sf::VideoMode(screenWidth, screenHeight), "Test Raycastingu z Teksturami Naprawiony", sf::Style::Fullscreen),
       player(22, 12, -1, 0, 0, 0.66), 
       state(GameState::menu)
 {
@@ -45,22 +45,34 @@ void Game::processEvents() {
                     player.attack(map);
                 }
             } else if (state == GameState::paused) {
-                if (event.key.code == sf::Keyboard::Escape) {
-                    state = GameState::playing;
+                    // Jeśli gracz wciśnie ENTER wraca do gry
+                    if (event.key.code == sf::Keyboard::Enter) {
+                        state = GameState::playing;
+                    }
+                    // Jeśli gracz wciśnie ESCAPE będąc w pauzie całkowicie zamykamy grę
+                    else if (event.key.code == sf::Keyboard::Escape) {
+                        window.close();
+                    }
                 }
             }
         }
     }
-}
+
 
 // update logiki gry np fizyki ai zależnie od stanu
+
 void Game::update(double frameTime) {
     if (state == GameState::playing) {
         player.update(frameTime, map);
-        map.update(frameTime);
+        map.update(frameTime, player); // Przekazujemy obiekt gracza do mapy
+
+        // Opcjonalnie: Jeśli gracz zginie, zmień stan gry
+        if (player.isDead()) {
+            // state = GameState::gameOver; (gdy dorobisz taki stan)
+            window.close(); // Na razie po prostu zamykamy grę z braku ekranu śmierci
+        }
     }
 }
-
 // rysowanie odpowiedniego ekranu
 void Game::render() {
     if (state == GameState::menu) {

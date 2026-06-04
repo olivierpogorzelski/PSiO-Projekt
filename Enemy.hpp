@@ -1,11 +1,13 @@
 #pragma once
-
+// DEKLARACJA ZAPOWIADAJĄCA:
+class Map;
+class Player;
 // klasa przeciwnika na mapie
 class Enemy {
 public:
-    Enemy(double startX, double startY, int textureId);
+    Enemy(double startX, double startY, int textureE);
 
-    void update(double frameTime);
+    void update(double frameTime, Player& player, const Map& map);
     void takeDamage(int amount);
     bool isDead() const;
 
@@ -18,4 +20,6 @@ private:
     double y;
     int texture;
     int hp;
+    double attackTimer = 0.0; // Odliczanie do następnego ataku
+    int attackDamage = 15;    // Ile obrażeń zadaje ten przeciwnik
 };

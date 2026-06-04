@@ -23,6 +23,9 @@ add_executable(WolfensteinClone
     Renderer.hpp
     Enemy.cpp
     Enemy.hpp
+    GameState.hpp
+    Constants.hpp
+    Item.hpp Item.cpp
 )
 
 # zmiana w sfml 2.5.1 targety nazywają się sfml-graphics z małych liter bez przedrostka sfml

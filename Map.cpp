@@ -1,4 +1,5 @@
 #include "Map.hpp"
+#include "Player.hpp"
 #include "Constants.hpp"
 
 // ładowanie początkowego stanu mapy oraz wrogów
@@ -33,6 +34,7 @@ Map::Map() : worldMap{
     enemies.push_back(Enemy(18.5, 4.5, 1));
     enemies.push_back(Enemy(10.0, 4.5, 2));
     enemies.push_back(Enemy(10.0, 12.5, 3));
+    items.push_back(Item(18.5,12.5,0));
 }
 
 // pobiera wartość kafla ściany
@@ -62,15 +64,28 @@ std::vector<Enemy>& Map::getEnemies() {
 const std::vector<Enemy>& Map::getEnemies() const {
     return enemies;
 }
-
+std::vector<Item>& Map::getItems() {
+    return items;
+}
+const std::vector<Item>& Map::getItems() const {
+    return items;
+}
 // czyszczenie martwych wrogów
-void Map::update(double frameTime) {
+void Map::update(double frameTime, Player& player) { // Przekazujemy całego gracza przez referencję
     for (auto it = enemies.begin(); it != enemies.end(); ) {
         if (it->isDead()) {
             it = enemies.erase(it);
         } else {
-            it->update(frameTime);
+            // Przekazujemy frameTime, gracza oraz tę mapę (*this)
+            it->update(frameTime, player, *this);
             ++it;
         }
     }
-}
+    for (auto& item : items) {
+        // Wywołujemy funkcję z klasy Item, przekazując pozycję gracza
+        if (item.checkCollision(player.getX(), player.getY())) {
+            player.addHp(20);
+        }
+
+
+    }}
