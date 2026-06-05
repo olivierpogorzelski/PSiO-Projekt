@@ -2,7 +2,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <cmath>
 
-// inicjalizacja położenia kamery i timera ataku
+// inicjalizacja połoženia kamery i timera ataku
 Player::Player(double startX, double startY, double startDirX, double startDirY, double startPlaneX, double startPlaneY)
     : posX(startX), posY(startY), dirX(startDirX), dirY(startDirY), planeX(startPlaneX), planeY(startPlaneY), attackTimer(0.0) {}
 
@@ -64,7 +64,7 @@ void Player::attack(Map& map) {
             double nx = dx / distance;
             double ny = dy / distance;
             
-            // sprawdzanie czy patrzymy w stronę wroga używając iloczynu skalarnego
+            // sprawdzanie czy patrzymy w stronę wroga užywając iloczynu skalarnego
             double dotProduct = nx * dirX + ny * dirY;
             if (dotProduct > 0.8) { // ok 36 stopni odchylenia
                 enemy.takeDamage(50);

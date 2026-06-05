@@ -22,7 +22,7 @@ void Game::run() {
     }
 }
 
-// przetwarzanie wejścia użytkownika i okna
+// przetwarzanie wejścia užytkownika i okna
 void Game::processEvents() {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -45,11 +45,11 @@ void Game::processEvents() {
                     player.attack(map);
                 }
             } else if (state == GameState::paused) {
-                    // Jeśli gracz wciśnie ENTER wraca do gry
+                    // jeśli gracz wciśnie enter wraca do gry
                     if (event.key.code == sf::Keyboard::Enter) {
                         state = GameState::playing;
                     }
-                    // Jeśli gracz wciśnie ESCAPE będąc w pauzie całkowicie zamykamy grę
+                    // jeśli gracz wciśnie escape będąc w pauzie całkowicie zamykamy grę
                     else if (event.key.code == sf::Keyboard::Escape) {
                         window.close();
                     }
@@ -59,17 +59,17 @@ void Game::processEvents() {
     }
 
 
-// update logiki gry np fizyki ai zależnie od stanu
+// update logiki gry np fizyki ai zaležnie od stanu
 
 void Game::update(double frameTime) {
     if (state == GameState::playing) {
         player.update(frameTime, map);
-        map.update(frameTime, player); // Przekazujemy obiekt gracza do mapy
+        map.update(frameTime, player); // przekazujemy obiekt gracza do mapy
 
-        // Opcjonalnie: Jeśli gracz zginie, zmień stan gry
+        // opcjonalnie: jeśli gracz zginie, zmień stan gry
         if (player.isDead()) {
-            // state = GameState::gameOver; (gdy dorobisz taki stan)
-            window.close(); // Na razie po prostu zamykamy grę z braku ekranu śmierci
+            // state = gamestate::gameover; (gdy dorobisz taki stan)
+            window.close(); // na razie po prostu zamykamy grę z braku ekranu śmierci
         }
     }
 }
@@ -83,7 +83,7 @@ void Game::render() {
         renderer.render(window, player, map);
         window.display();
     } else if (state == GameState::paused) {
-        // nakładamy ciemną warstwę na grę żeby zrobić wizualny efekt pauzy
+        // nakładamy ciemną warstwę na grę žeby zrobić wizualny efekt pauzy
         renderer.render(window, player, map);
         
         sf::RectangleShape overlay(sf::Vector2f(screenWidth, screenHeight));

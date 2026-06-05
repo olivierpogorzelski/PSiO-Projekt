@@ -30,11 +30,12 @@ Map::Map() : worldMap{
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 } {
     // inicjalizacja testowych wrogów
-    enemies.push_back(Enemy(20.5, 11.5, 0));
-    enemies.push_back(Enemy(18.5, 4.5, 1));
-    enemies.push_back(Enemy(10.0, 4.5, 2));
-    enemies.push_back(Enemy(10.0, 12.5, 3));
-    items.push_back(Item(18.5,12.5,0));
+    enemies.push_back(Enemy(20.5, 11.5, 0)); // duzydemon
+    enemies.push_back(Enemy(18.5, 4.5, 1));  // goblin
+    enemies.push_back(Enemy(10.0, 4.5, 2));  // malydemon
+    enemies.push_back(Enemy(10.0, 12.5, 3)); // zjawa
+    enemies.push_back(Enemy(14.0, 10.5, 5)); // szkielet z lukiem
+    items.push_back(Item(18.5,12.5,8));      // potka zdrowia ma indeks 8
 }
 
 // pobiera wartość kafla ściany
@@ -70,22 +71,44 @@ std::vector<Item>& Map::getItems() {
 const std::vector<Item>& Map::getItems() const {
     return items;
 }
-// czyszczenie martwych wrogów
-void Map::update(double frameTime, Player& player) { // Przekazujemy całego gracza przez referencję
-    for (auto it = enemies.begin(); it != enemies.end(); ) {
-        if (it->isDead()) {
-            it = enemies.erase(it);
+std::vector<Projectile>& Map::getProjectiles() {
+    return projectiles;
+}
+
+const std::vector<Projectile>& Map::getProjectiles() const {
+    return projectiles;
+}
+
+void Map::addProjectile(const Projectile& proj) {
+    projectiles.push_back(proj);
+}
+
+// czyszczenie martwych wrogów i aktualizacja reszty
+void Map::update(double frameTime, Player& player) { // przekazujemy całego gracza przez referencję
+    for (auto& enemy : enemies) {
+        // martwi wrogowie nadal zajmują miejsce w pamięci, by móc ich wyrenderować jako zwłoki na podłodze.
+        // nie wywołujemy dla nich update(), aby zoptymalizować działanie.
+        if (!enemy.isDead()) {
+            enemy.update(frameTime, player, *this);
+        }
+    }
+    
+    // aktualizacja pocisków
+    for (auto it = projectiles.begin(); it != projectiles.end(); ) {
+        if (it->update(frameTime, player, *this)) {
+            // zniszcz pocisk, jeśli uderzył w ścianę lub w gracza
+            it = projectiles.erase(it);
         } else {
-            // Przekazujemy frameTime, gracza oraz tę mapę (*this)
-            it->update(frameTime, player, *this);
             ++it;
         }
     }
-    for (auto& item : items) {
-        // Wywołujemy funkcję z klasy Item, przekazując pozycję gracza
-        if (item.checkCollision(player.getX(), player.getY())) {
+    
+    for (auto it = items.begin(); it != items.end(); ) {
+        if (it->checkCollision(player.getX(), player.getY())) {
             player.addHp(20);
+            it = items.erase(it); // usuwamy miksturę ze świata po zebraniu
+        } else {
+            ++it;
         }
-
-
-    }}
+    }
+}

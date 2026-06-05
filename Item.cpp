@@ -10,8 +10,8 @@ bool Item::checkCollision(double playerX, double playerY)
     float dy = playerY - y;
 
     if ((dx * dx + dy * dy) < (pickupRadius * pickupRadius)) {
-        isPickedUp = true; // Przedmiot zostaje oznaczony jako zebrany
-        return true;       // Informujemy mapę, że trzeba nałożyć efekt na gracza
+        isPickedUp = true; // przedmiot zostaje oznaczony jako zebrany
+        return true;       // informujemy mapę, že trzeba nałožyć efekt na gracza
 
     }
     return false;
