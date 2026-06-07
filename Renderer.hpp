@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
@@ -6,7 +6,7 @@
 #include "Player.hpp"
 #include "Constants.hpp"
 
-// renderer odpowiedzialny za raycasting ścian i sprite'ów
+// renderer odpowiedzialny za raycasting scian i sprite'ow
 class Renderer {
 public:
     Renderer();
@@ -47,10 +47,25 @@ private:
     sf::Sprite playerWeaponSprite;
     std::vector<sf::IntRect> playerWeaponFrames;
 
+    sf::Texture crossbowTexture;
+    sf::Sprite crossbowSprite;
+    std::vector<sf::IntRect> crossbowFrames;
+    
+    sf::Texture iconSwordTex;
+    sf::Sprite iconSwordSprite;
+    
+    sf::Texture iconCrossbowTex;
+    sf::Sprite iconCrossbowSprite;
+    
+    sf::Texture potkaTex;
+    sf::Sprite potkaSprite;
+
     sf::Texture hudTexture;
     sf::Sprite hudSprite;
     sf::Font hudFont;
-
-    // jednowymiarowy bufor głębokości dla każdej kolumny ekranu
+    
+    // jednowymiarowy bufor glebokosci dla kazdej kolumny ekranu
     double zBuffer[bufferWidth];
 };
+
+

@@ -1,8 +1,8 @@
-#include "Enemy.hpp"
+﻿#include "Enemy.hpp"
 #include "Map.hpp"
 #include "Player.hpp"
 #include <cmath>
-// inicjalizacja współrzędnych tekstury i zdrowia przeciwnika
+// inicjalizacja wspolrzednych tekstury i zdrowia przeciwnika
 Enemy::Enemy(double startX, double startY, int textureE)
     : x(startX), y(startY), texture(textureE), hp(100), attackTimer(0.0), attackDamage(15), state(AnimationState::Idle), hurtTimer(0.0) {}
 
@@ -21,7 +21,7 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
         state = AnimationState::Idle;
     }
 
-    // zmniejszamy cooldown ataku w każdej klatce
+    // zmniejszamy cooldown ataku w kazdej klatce
     if (attackTimer > 0.0) {
         attackTimer -= frameTime;
     }
@@ -40,12 +40,12 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
         dirY /= distance;
     }
 
-    // 1. logika poruszania się
+    // 1. logika poruszania sie
     if (distance < 12.0 && distance > stopDistance) {
         if (hurtTimer <= 0.0) {
             state = AnimationState::Walk;
             walkTimer += frameTime;
-            // zmieniamy odbicie lustrzane co 0.3 sekundy aby symulować przebieranie nogami
+            // zmieniamy odbicie lustrzane co 0.3 sekundy aby symulowac przebieranie nogami
             if (walkTimer > 0.3) {
                 walkTimer = 0.0;
                 mirrored = !mirrored;
@@ -82,8 +82,8 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
                 // ranged: strzelamy pociskiem
                 map.addProjectile(Projectile(x, y, dirX, dirY, projTex, attackDamage));
             } else {
-                // melee: bezpośrednie obrażenia
-                if (distance <= 1.5) { // małe zabezpieczenie, żeby melee nie biło z 6 metrów w razie błędów
+                // melee: bezposrednie obrazenia
+                if (distance <= 1.5) { // male zabezpieczenie, zeby melee nie bilo z 6 metrow w razie bledow
                     player.takeDamage(attackDamage);
                 }
             }
@@ -92,19 +92,20 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
         }
     }
 }
-// zadawanie obrażeń wrogówi
+// zadawanie obrazen wrogowi
 void Enemy::takeDamage(int amount) {
-    // hp -= amount; // wyłączone zadawanie damage wrogom dla testów
-    hurtTimer = 0.3; // pokazuj klatkę otrzymania obrażeń przez 0.3s
-    /*
+    hp -= amount;
+    hurtTimer = 0.3; // pokazuj klatke otrzymania obrazen przez 0.3s
+    
     if (hp <= 0) {
         hp = 0;
         state = AnimationState::Dead;
     }
-    */
 }
 
-// sprawdzanie czy zginął
+// sprawdzanie czy zginal
 bool Enemy::isDead() const {
     return hp <= 0;
 }
+
+

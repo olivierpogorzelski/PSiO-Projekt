@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include "Enemy.hpp"
 #include "Item.hpp"
@@ -6,7 +6,7 @@
 #include "Constants.hpp"
 #include <memory>
 
-// klasa mapy przechowująca strukturę korytarzy i wrogów
+// klasa mapy przechowujaca strukture korytarzy i wrogow
 class Map {
 public:
     Map();
@@ -36,3 +36,5 @@ private:
     std::vector<Item> items;
     std::vector<Projectile> projectiles;
 };
+
+

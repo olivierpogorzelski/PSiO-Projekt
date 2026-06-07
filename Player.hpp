@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "Map.hpp"
 
-// klasa zarządzająca graczem
+// klasa zarzadzajaca graczem
 class Player {
 public:
     Player(double startX, double startY, double startDirX, double startDirY, double startPlaneX, double startPlaneY);
@@ -22,6 +22,15 @@ public:
     
     // zwraca czas od ostatniego ataku do animacji miecza
     double getAttackTimer() const { return attackTimer; }
+    
+    // ekwipunek
+    int inventoryWeapons[5]; // 0: puste, 1: miecz, 2: kusza
+    int inventoryItems[5];   // 0: puste, 1: potka zdrowia
+    int activeWeapon;        // zaznaczony slot (0 do 4)
+    
+    void setActiveWeaponSlot(int slot);
+    int getActiveWeaponType() const; // zwraca typ broni (1 lub 2) z aktywnego slotu
+    void usePotion();
 
     // settery dla systemu load/save
     void setX(double x) { posX = x; }
@@ -39,3 +48,5 @@ private:
     double attackTimer;
     int hp=100;
 };
+
+

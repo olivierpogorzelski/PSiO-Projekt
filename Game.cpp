@@ -1,4 +1,4 @@
-#include "Game.hpp"
+﻿#include "Game.hpp"
 #include "Constants.hpp"
 
 #include <fstream>
@@ -36,10 +36,10 @@ Game::Game()
 
 void Game::initMenu() {
     if (!menuFont.loadFromFile(getAssetPath("textures/font.ttf"))) {
-        // błąd
+        // blad
     }
     if (!menuBgTexture.loadFromFile(getAssetPath("textures/menu_bg.png"))) {
-        // błąd
+        // blad
     }
     menuBgSprite.setTexture(menuBgTexture);
     
@@ -52,7 +52,7 @@ void Game::initMenu() {
         logoSprite.setTexture(logoTexture);
         sf::FloatRect logoRect = logoSprite.getLocalBounds();
         logoSprite.setOrigin(logoRect.width / 2.0f, logoRect.height / 2.0f);
-        // skaler żeby logo ładnie wypełniało górną część ekranu
+        // skaler zeby logo ladnie wypelnialo gorna czesc ekranu
         float maxLogoW = screenWidth * 0.8f;
         float maxLogoH = screenHeight * 0.4f;
         float logoScale = 1.0f;
@@ -109,7 +109,7 @@ void Game::initMenu() {
     slotText.setCharacterSize(50);
 }
 
-// główna pętla gry
+// glowna petla gry
 void Game::run() {
     while (window.isOpen()) {
         processEvents();
@@ -121,7 +121,7 @@ void Game::run() {
     }
 }
 
-// przetwarzanie wejścia użytkownika i okna
+// przetwarzanie wejscia uzytkownika i okna
 void Game::processEvents() {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -129,9 +129,28 @@ void Game::processEvents() {
             window.close();
         }
         
-        // obsługa klawiszy (wyzwalamy akcje dopiero przy puszczeniu klawisza)
+        // obsluga klawiszy wejsciowych (wcisniecie)
+        if (event.type == sf::Event::KeyPressed) {
+            if (state == GameState::playing) {
+                if (event.key.code == sf::Keyboard::Space) {
+                    player.attack(map);
+                }
+                // ekwipunek: zmiana broni klawiszami 1-5
+                else if (event.key.code == sf::Keyboard::Num1) player.setActiveWeaponSlot(0);
+                else if (event.key.code == sf::Keyboard::Num2) player.setActiveWeaponSlot(1);
+                else if (event.key.code == sf::Keyboard::Num3) player.setActiveWeaponSlot(2);
+                else if (event.key.code == sf::Keyboard::Num4) player.setActiveWeaponSlot(3);
+                else if (event.key.code == sf::Keyboard::Num5) player.setActiveWeaponSlot(4);
+                // ekwipunek: uzycie potki
+                else if (event.key.code == sf::Keyboard::Q) {
+                    player.usePotion();
+                }
+            }
+        }
+        
+        // obsluga klawiszy menu (puszczenie)
         if (event.type == sf::Event::KeyReleased) {
-            // zabezpieczenie przed podwójnym kliknięciem (debounce) 
+            // zabezpieczenie przed podwojnym kliknieciem (debounce) 
             if (inputClock.getElapsedTime().asSeconds() < 0.25f) {
                 continue; 
             }
@@ -154,7 +173,7 @@ void Game::processEvents() {
                         slotAction = SlotAction::LoadGame;
                         updateSaveInfoCache();
                         state = GameState::slot_selection;
-                    } else if (selectedMenuOption == 2) { // wyjdź
+                    } else if (selectedMenuOption == 2) { // wyjdz
                         window.close();
                     }
                 }
@@ -215,18 +234,6 @@ void Game::processEvents() {
                 if (event.key.code == sf::Keyboard::Escape) {
                     state = GameState::paused;
                 }
-                // atak spacją
-                if (event.key.code == sf::Keyboard::Space) {
-                    player.attack(map);
-                }
-                
-                // system zapisu (f5) i odczytu (f9) z aktualnego slota
-                if (event.key.code == sf::Keyboard::F5) {
-                    saveGame(currentSlot);
-                }
-                if (event.key.code == sf::Keyboard::F9) {
-                    loadGame(currentSlot);
-                }
             } else if (state == GameState::paused) {
                 if (event.key.code == sf::Keyboard::Up) {
                     pausedMenuOption--;
@@ -247,12 +254,12 @@ void Game::processEvents() {
                         slotAction = SlotAction::LoadGame;
                         updateSaveInfoCache();
                         state = GameState::slot_selection;
-                    } else if (pausedMenuOption == 3) { // wyjdź do pulpitu
+                    } else if (pausedMenuOption == 3) { // wyjdz do pulpitu
                         window.close();
                     }
                 }
                 else if (event.key.code == sf::Keyboard::Escape) {
-                    state = GameState::playing; // powrót z pauzy też klawiszem esc
+                    state = GameState::playing; // powrot z pauzy tez klawiszem esc
                 }
             }
         }
@@ -260,7 +267,7 @@ void Game::processEvents() {
 }
 
 
-// update logiki gry np fizyki ai zależnie od stanu
+// update logiki gry np fizyki ai zaleznie od stanu
 
 void Game::update(double frameTime) {
 
@@ -269,10 +276,10 @@ void Game::update(double frameTime) {
         player.update(frameTime, map);
         map.update(frameTime, player); // przekazujemy obiekt gracza do mapy
 
-        // opcjonalnie: jeśli gracz zginie, zmień stan gry
+        // opcjonalnie: jesli gracz zginie, zmien stan gry
         if (player.isDead()) {
             // state = gamestate::gameover; (gdy dorobisz taki stan)
-            window.close(); // na razie po prostu zamykamy grę z braku ekranu śmierci
+            window.close(); // na razie po prostu zamykamy gre z braku ekranu smierci
         }
     }
 }
@@ -289,8 +296,8 @@ std::string Game::getSaveInfo(int slot) {
         // format: yyyy-mm-dd hh:mm
         strftime(buffer, sizeof(buffer), "(%Y-%m-%d %H:%M)", localtime(&result.st_mtime));
         
-        // podgląd pliku by wyciągnąć poziom trudności
-        std::string diffStr = "Normalny"; // domyślny fallback
+        // podglad pliku by wyciagnac poziom trudnosci
+        std::string diffStr = "Normalny"; // domyslny fallback
         std::ifstream file(filename);
         if (file.is_open()) {
             std::string header;
@@ -325,28 +332,24 @@ void Game::saveGame(int slot) {
         return;
     }
     
-    // zrzut trudności
     file << "[DIFFICULTY]\n";
     file << static_cast<int>(currentDifficulty) << "\n\n";
     
-    // zrzut gracza
     file << "[PLAYER]\n";
     file << player.getX() << " " << player.getY() << " " 
          << player.getDirX() << " " << player.getDirY() << " "
          << player.getPlaneX() << " " << player.getPlaneY() << " "
          << player.getHp() << "\n\n";
          
-    // zrzut przeciwnikow
     file << "[ENEMIES]\n";
     const auto& enemies = map.getEnemies();
     file << enemies.size() << "\n";
-    for (const auto& enemy : enemies) {
+    for (auto& enemy : enemies) {
         file << enemy->getX() << " " << enemy->getY() << " " 
              << enemy->getTexture() << " " << enemy->getHp() << "\n";
     }
     file << "\n";
     
-    // zrzut przedmiotów
     file << "[ITEMS]\n";
     const auto& items = map.getItems();
     file << items.size() << "\n";
@@ -354,8 +357,17 @@ void Game::saveGame(int slot) {
         file << item.x << " " << item.y << " " 
              << item.texture << " " << item.isPickedUp << "\n";
     }
+    file << "\n";
+    
+    file << "[INVENTORY]\n";
+    file << player.activeWeapon << "\n";
+    for(int i = 0; i < 5; i++) file << player.inventoryWeapons[i] << " ";
+    file << "\n";
+    for(int i = 0; i < 5; i++) file << player.inventoryItems[i] << " ";
+    file << "\n";
     
     file.close();
+    updateSaveInfoCache();
     std::cout << "SUKCES: Gra zostala zapisana do " << filename << "!\n";
 }
 
@@ -389,7 +401,7 @@ void Game::loadGame(int slot) {
         else if (header == "[ENEMIES]") {
             size_t count;
             file >> count;
-            map.clearEntities(); // zawsze upewnijmy sie, ze czyścimy plansze przed zaladowaniem
+            map.clearEntities(); // zabezpieczenie usuwajace starych wrogow
             for (size_t i = 0; i < count; ++i) {
                 double ex, ey;
                 int tex, hp;
@@ -406,6 +418,18 @@ void Game::loadGame(int slot) {
                 bool pickedUp;
                 file >> ix >> iy >> tex >> pickedUp;
                 map.loadItem(ix, iy, tex, pickedUp);
+            }
+        }
+        else if (header == "[INVENTORY]") {
+            int aw;
+            if (file >> aw) {
+                player.activeWeapon = aw;
+                for(int i=0; i<5; i++) {
+                    if(!(file >> player.inventoryWeapons[i])) break;
+                }
+                for(int i=0; i<5; i++) {
+                    if(!(file >> player.inventoryItems[i])) break;
+                }
             }
         }
     }
@@ -433,7 +457,7 @@ void Game::render() {
         exitText.setOutlineColor(sf::Color::Black);
         exitText.setOutlineThickness(selectedMenuOption == 2 ? 3 : 0);
         
-        // zabezpiecz pozycje dla głównego menu
+        // zabezpiecz pozycje dla glownego menu
         playText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 50);
         loadText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 120);
         exitText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 190);
@@ -444,7 +468,7 @@ void Game::render() {
         
         window.display();
     } else if (state == GameState::slot_selection) {
-        // rysujemy tło głównego menu lub grę z przyciemnieniem, w zależności skąd przyszliśmy
+        // rysujemy tlo glownego menu lub gre z przyciemnieniem, w zaleznosci skad przyszlismy
         if (slotAction == SlotAction::NewGame || slotAction == SlotAction::LoadGame) {
             window.clear();
             window.draw(menuBgSprite);
@@ -456,7 +480,7 @@ void Game::render() {
             window.draw(overlay);
         }
         
-        // tytuł ekranu
+        // tytul ekranu
         sf::Text title;
         title.setFont(menuFont);
         title.setCharacterSize(50);
@@ -472,7 +496,7 @@ void Game::render() {
         title.setOutlineThickness(3);
         window.draw(title);
         
-        // rysujemy 10 slotów w pionie
+        // rysujemy 10 slotow w pionie
         for (int i = 1; i <= maxSlots; ++i) {
             sf::Text st;
             st.setFont(menuFont);
@@ -503,7 +527,7 @@ void Game::render() {
         window.draw(menuBgSprite);
         window.draw(logoSprite);
         
-        // ciemne tło poprawiające czytelność tak samo jak w slotach
+        // ciemne tlo poprawiajace czytelnosc tak samo jak w slotach
         sf::RectangleShape overlay(sf::Vector2f(screenWidth, screenHeight));
         overlay.setFillColor(sf::Color(80, 0, 0, 200));
         window.draw(overlay);
@@ -543,11 +567,11 @@ void Game::render() {
         renderer.render(window, player, map);
         window.display();
     } else if (state == GameState::paused) {
-        // nakładamy ciemną warstwę na grę żeby zrobić wizualny efekt pauzy
+        // nakladamy ciemna warstwe na gre zeby zrobic wizualny efekt pauzy
         renderer.render(window, player, map);
         
         sf::RectangleShape overlay(sf::Vector2f(screenWidth, screenHeight));
-        overlay.setFillColor(sf::Color(80, 0, 0, 200)); // głęboki karmazynowy mrok pauzy
+        overlay.setFillColor(sf::Color(80, 0, 0, 200)); // gleboki karmazynowy mrok pauzy
         window.draw(overlay);
         
         resumeText.setPosition(screenWidth/2.0f, screenHeight/2.0f - 100);
@@ -573,3 +597,5 @@ void Game::render() {
         window.display();
     }
 }
+
+

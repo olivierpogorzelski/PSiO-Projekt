@@ -1,5 +1,5 @@
-#pragma once
-// deklaracja zapowiadająca:
+﻿ #pragma once
+// deklaracja zapowiadajaca:
 class Map;
 class Player;
 
@@ -34,10 +34,12 @@ protected:
     double y;
     int texture;
     int hp;
-    double attackTimer = 0.0; // odliczanie do następnego ataku
-    int attackDamage = 15;    // ile obrażeń zadaje ten przeciwnik
+    double attackTimer = 0.0; // odliczanie do nastepnego ataku
+    int attackDamage = 15;    // ile obrazen zadaje ten przeciwnik
     AnimationState state = AnimationState::Idle;
     double hurtTimer = 0.0;
     double walkTimer = 0.0;
     bool mirrored = false;
 };
+
+

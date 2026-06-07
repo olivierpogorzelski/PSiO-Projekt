@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 constexpr int mapWidth = 24;
 constexpr int mapHeight = 24;
@@ -11,3 +11,5 @@ constexpr int bufferHeight = 270;
 
 constexpr int texWidth = 64;
 constexpr int texHeight = 64;
+
+

@@ -1,4 +1,4 @@
-#include "SkeletonBow.hpp"
+﻿#include "SkeletonBow.hpp"
 #include "Player.hpp"
 #include "Map.hpp"
 #include <cmath>
@@ -11,6 +11,8 @@ SkeletonBow::SkeletonBow(double startX, double startY)
 }
 
 void SkeletonBow::update(double frameTime, Player& player, Map& map) {
-    // na ten moment używamy bazowej aktualizacji, później zaimplementujemy logikę strzelania
+    // na ten moment uzywamy bazowej aktualizacji, pozniej zaimplementujemy logike strzelania
     Enemy::update(frameTime, player, map);
 }
+
+

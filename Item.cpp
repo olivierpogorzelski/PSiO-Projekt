@@ -1,4 +1,4 @@
-#include "Item.hpp"
+﻿#include "Item.hpp"
 
 Item::Item(float startX, float startY, int textureI): x(startX), y(startY), isPickedUp(false), texture(textureI) {}
 bool Item::checkCollision(double playerX, double playerY)
@@ -11,8 +11,10 @@ bool Item::checkCollision(double playerX, double playerY)
 
     if ((dx * dx + dy * dy) < (pickupRadius * pickupRadius)) {
         isPickedUp = true; // przedmiot zostaje oznaczony jako zebrany
-        return true;       // informujemy mapę, że trzeba nałożyć efekt na gracza
+        return true;       // informujemy mape, ze trzeba nalozyc efekt na gracza
 
     }
     return false;
 }
+
+

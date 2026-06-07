@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <SFML/Graphics.hpp>
 #include <fstream>
 #include <iostream>
@@ -8,7 +8,7 @@
 #include "Renderer.hpp"
 #include "GameState.hpp"
 
-// główna klasa silnika która zarządza grą
+// glowna klasa silnika ktora zarzadza gra
 
 
 enum class SlotAction {
@@ -76,3 +76,5 @@ private:
     // trzyma aktualny stan gry
     GameState state;
 };
+
+
