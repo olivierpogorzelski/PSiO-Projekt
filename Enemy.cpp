@@ -21,7 +21,7 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
         state = AnimationState::Idle;
     }
 
-    // zmniejszamy cooldown ataku w každej klatce
+    // zmniejszamy cooldown ataku w każdej klatce
     if (attackTimer > 0.0) {
         attackTimer -= frameTime;
     }
@@ -82,8 +82,8 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
                 // ranged: strzelamy pociskiem
                 map.addProjectile(Projectile(x, y, dirX, dirY, projTex, attackDamage));
             } else {
-                // melee: bezpośrednie obraženia
-                if (distance <= 1.5) { // małe zabezpieczenie, žeby melee nie biło z 6 metrów w razie błędów
+                // melee: bezpośrednie obrażenia
+                if (distance <= 1.5) { // małe zabezpieczenie, żeby melee nie biło z 6 metrów w razie błędów
                     player.takeDamage(attackDamage);
                 }
             }
@@ -92,14 +92,16 @@ void Enemy::update(double frameTime, Player& player, Map& map) {
         }
     }
 }
-// zadawanie obražeń wrogowi
+// zadawanie obrażeń wrogówi
 void Enemy::takeDamage(int amount) {
-    hp -= amount;
-    hurtTimer = 0.3; // pokazuj klatkę otrzymania obražeń przez 0.3s
+    // hp -= amount; // wyłączone zadawanie damage wrogom dla testów
+    hurtTimer = 0.3; // pokazuj klatkę otrzymania obrażeń przez 0.3s
+    /*
     if (hp <= 0) {
         hp = 0;
         state = AnimationState::Dead;
     }
+    */
 }
 
 // sprawdzanie czy zginął

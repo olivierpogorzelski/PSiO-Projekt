@@ -47,6 +47,10 @@ private:
     sf::Sprite playerWeaponSprite;
     std::vector<sf::IntRect> playerWeaponFrames;
 
-    // jednowymiarowy bufor głębokości dla každej kolumny ekranu
+    sf::Texture hudTexture;
+    sf::Sprite hudSprite;
+    sf::Font hudFont;
+
+    // jednowymiarowy bufor głębokości dla każdej kolumny ekranu
     double zBuffer[bufferWidth];
 };

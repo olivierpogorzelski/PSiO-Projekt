@@ -4,6 +4,7 @@
 #include "Item.hpp"
 #include "Projectile.hpp"
 #include "Constants.hpp"
+#include <memory>
 
 // klasa mapy przechowująca strukturę korytarzy i wrogów
 class Map {
@@ -14,19 +15,24 @@ public:
     int getHeight() const;
     void update(double frameTime, Player& player);
 
-    std::vector<Enemy>& getEnemies();
+    // metody dla systemu zapisu/odczytu
+    void clearEntities();
+    void loadEnemy(double x, double y, int texture, int hp);
+    void loadItem(double x, double y, int texture, bool pickedUp);
+
+    std::vector<std::unique_ptr<Enemy>>& getEnemies();
     std::vector<Item>& getItems();
     std::vector<Projectile>& getProjectiles();
     
     const std::vector<Item>& getItems() const;
-    const std::vector<Enemy>& getEnemies() const;
+    const std::vector<std::unique_ptr<Enemy>>& getEnemies() const;
     const std::vector<Projectile>& getProjectiles() const;
 
     void addProjectile(const Projectile& proj);
 
 private:
     int worldMap[mapWidth][mapHeight];
-    std::vector<Enemy> enemies;
+    std::vector<std::unique_ptr<Enemy>> enemies;
     std::vector<Item> items;
     std::vector<Projectile> projectiles;
 };

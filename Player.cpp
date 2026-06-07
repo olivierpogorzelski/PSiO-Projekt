@@ -2,7 +2,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <cmath>
 
-// inicjalizacja połoženia kamery i timera ataku
+// inicjalizacja położenia kamery i timera ataku
 Player::Player(double startX, double startY, double startDirX, double startDirY, double startPlaneX, double startPlaneY)
     : posX(startX), posY(startY), dirX(startDirX), dirY(startDirY), planeX(startPlaneX), planeY(startPlaneY), attackTimer(0.0) {}
 
@@ -54,27 +54,28 @@ void Player::attack(Map& map) {
     
     auto& enemies = map.getEnemies();
     for (auto& enemy : enemies) {
-        double dx = enemy.getX() - posX;
-        double dy = enemy.getY() - posY;
+        double dx = enemy->getX() - posX;
+        double dy = enemy->getY() - posY;
         double distance = std::sqrt(dx*dx + dy*dy);
         
-        // sprawdzanie czy wróg jest blisko na dystans 1.5 kafla
-        if (distance < 1.5) {
-            // normalizacja wektora do wroga
-            double nx = dx / distance;
-            double ny = dy / distance;
+        // uderzamy tylko jesli jest wystarczająco blisko i przed nami
+        if (distance < 2.5 && !enemy->isDead()) {
+            double dirToEnemyX = dx / distance;
+            double dirToEnemyY = dy / distance;
             
-            // sprawdzanie czy patrzymy w stronę wroga užywając iloczynu skalarnego
-            double dotProduct = nx * dirX + ny * dirY;
-            if (dotProduct > 0.8) { // ok 36 stopni odchylenia
-                enemy.takeDamage(50);
+            // sprawdzanie czy patrzymy w stronę wroga używając iloczynu skalarnego
+            double dotProduct = dirToEnemyX * dirX + dirToEnemyY * dirY;
+            if (dotProduct > 0.8) {
+                enemy->takeDamage(25); // zadajemy 25 pkt obrażeń
+                // atakuje tylko jednego na raz
+                break;
             }
         }
     }
 }
 void Player::takeDamage(int amount) {
-    hp -= amount;
-    if (hp < 0) hp = 0;
+    // hp -= amount; // wyłączone zadawanie damage graczowi dla testów
+    // if (hp < 0) hp = 0;
 }
 void Player::addHp(int HP)
 {if (hp<100)

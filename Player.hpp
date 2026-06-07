@@ -23,6 +23,15 @@ public:
     // zwraca czas od ostatniego ataku do animacji miecza
     double getAttackTimer() const { return attackTimer; }
 
+    // settery dla systemu load/save
+    void setX(double x) { posX = x; }
+    void setY(double y) { posY = y; }
+    void setDirX(double dx) { dirX = dx; }
+    void setDirY(double dy) { dirY = dy; }
+    void setPlaneX(double px) { planeX = px; }
+    void setPlaneY(double py) { planeY = py; }
+    void setHp(int h) { hp = h; }
+
 private:
     double posX, posY;
     double dirX, dirY;

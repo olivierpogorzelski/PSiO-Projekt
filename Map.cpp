@@ -1,6 +1,11 @@
 #include "Map.hpp"
 #include "Player.hpp"
 #include "Constants.hpp"
+#include "SkeletonSword.hpp"
+#include "SkeletonBow.hpp"
+#include "GoblinAxe.hpp"
+#include "SmallDemon.hpp"
+#include "BigDemon.hpp"
 
 // ładowanie początkowego stanu mapy oraz wrogów
 Map::Map() : worldMap{
@@ -30,11 +35,17 @@ Map::Map() : worldMap{
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 } {
     // inicjalizacja testowych wrogów
-    enemies.push_back(Enemy(20.5, 11.5, 0)); // duzydemon
-    enemies.push_back(Enemy(18.5, 4.5, 1));  // goblin
-    enemies.push_back(Enemy(10.0, 4.5, 2));  // malydemon
-    enemies.push_back(Enemy(10.0, 12.5, 3)); // zjawa
-    enemies.push_back(Enemy(14.0, 10.5, 5)); // szkielet z lukiem
+    enemies.push_back(std::make_unique<Enemy>(20.5, 11.5, 3)); // zjawa zamiast duzego demona
+
+    enemies.push_back(std::make_unique<GoblinAxe>(18.5, 4.5));  // goblin
+    enemies.push_back(std::make_unique<SmallDemon>(10.0, 4.5));  // malydemon
+    enemies.push_back(std::make_unique<Enemy>(10.0, 12.5, 3)); // zjawa
+    enemies.push_back(std::make_unique<SkeletonBow>(14.0, 10.5)); // szkielet z łukiem
+    
+    // testowo można dodać też innych jeśli potrzeba
+    // enemies.push_back(std::make_unique<bigdemon>(..., ...));
+    // enemies.push_back(std::make_unique<skeletonsword>(..., ...));
+    
     items.push_back(Item(18.5,12.5,8));      // potka zdrowia ma indeks 8
 }
 
@@ -57,12 +68,12 @@ int Map::getHeight() const {
 }
 
 // zwraca wrogów do modyfikacji
-std::vector<Enemy>& Map::getEnemies() {
+std::vector<std::unique_ptr<Enemy>>& Map::getEnemies() {
     return enemies;
 }
 
 // zwraca wrogów do wyrenderowania
-const std::vector<Enemy>& Map::getEnemies() const {
+const std::vector<std::unique_ptr<Enemy>>& Map::getEnemies() const {
     return enemies;
 }
 std::vector<Item>& Map::getItems() {
@@ -85,11 +96,11 @@ void Map::addProjectile(const Projectile& proj) {
 
 // czyszczenie martwych wrogów i aktualizacja reszty
 void Map::update(double frameTime, Player& player) { // przekazujemy całego gracza przez referencję
+    // update wrogów
     for (auto& enemy : enemies) {
-        // martwi wrogowie nadal zajmują miejsce w pamięci, by móc ich wyrenderować jako zwłoki na podłodze.
-        // nie wywołujemy dla nich update(), aby zoptymalizować działanie.
-        if (!enemy.isDead()) {
-            enemy.update(frameTime, player, *this);
+        // martwi wrogówie nadal zajmują miejsce w pamięci, by móc ich wyrenderować jako zwłoki na podłodze.
+        if (!enemy->isDead()) {
+            enemy->update(frameTime, player, *this);
         }
     }
     
@@ -111,4 +122,36 @@ void Map::update(double frameTime, Player& player) { // przekazujemy całego gra
             ++it;
         }
     }
+}
+
+// czyści wrogów, przedmioty i pociski podczas wczytywania gry
+void Map::clearEntities() {
+    enemies.clear();
+    items.clear();
+    projectiles.clear();
+}
+
+// odtwarza wroga z zapisu
+void Map::loadEnemy(double x, double y, int texture, int hp) {
+    std::unique_ptr<Enemy> newEnemy;
+    
+    switch (texture) {
+        case 1: newEnemy = std::make_unique<GoblinAxe>(x, y); break;
+        case 2: newEnemy = std::make_unique<SmallDemon>(x, y); break;
+        case 4: newEnemy = std::make_unique<SkeletonSword>(x, y); break;
+        case 5: newEnemy = std::make_unique<SkeletonBow>(x, y); break;
+        default: newEnemy = std::make_unique<Enemy>(x, y, texture); break; // w tym zjawa (3)
+    }
+    
+    // nadpisz domyślne hp punktami z save'a (wymaga sethp w enemy - zaraz dodamy)
+    // aby to zadziałało, musimy uzyc tymczasowego rzutowania lub po prostu przypisać to przez dedykowana metode
+    newEnemy->setHp(hp);
+    enemies.push_back(std::move(newEnemy));
+}
+
+// odtwarza przedmiot z zapisu
+void Map::loadItem(double x, double y, int texture, bool pickedUp) {
+    Item item(x, y, texture);
+    item.isPickedUp = pickedUp;
+    items.push_back(item);
 }

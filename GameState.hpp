@@ -4,5 +4,7 @@
 enum class GameState {
     menu,
     playing,
-    paused
+    paused,
+    slot_selection,
+    difficulty_selection
 };

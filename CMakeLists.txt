@@ -27,6 +27,11 @@ add_executable(WolfensteinClone
     Constants.hpp
     Item.hpp Item.cpp
     Projectile.hpp Projectile.cpp
+    SkeletonSword.hpp SkeletonSword.cpp
+    SkeletonBow.hpp SkeletonBow.cpp
+    GoblinAxe.hpp GoblinAxe.cpp
+    SmallDemon.hpp SmallDemon.cpp
+    BigDemon.hpp BigDemon.cpp
 )
 
 # zmiana w sfml 2.5.1 targety nazywają się sfml-graphics z małych liter bez przedrostka sfml

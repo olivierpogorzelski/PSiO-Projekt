@@ -6,7 +6,7 @@
 Projectile::Projectile(double startX, double startY, double directionX, double directionY, int tex, int dmg)
     : x(startX), y(startY), dirX(directionX), dirY(directionY), texture(tex), damage(dmg)
 {
-    speed = 3.0; // pociski lecą szybciej niž gracz i wrogowie
+    speed = 3.0; // pociski lecą szybciej niż gracz i wrogówie
     hitboxRadius = 0.3;
 }
 
@@ -28,7 +28,7 @@ bool Projectile::update(double frameTime, Player& player, const Map& map) {
     double distToPlayerY = player.getY() - y;
     double distanceToPlayer = std::sqrt(distToPlayerX * distToPlayerX + distToPlayerY * distToPlayerY);
 
-    if (distanceToPlayer < hitboxRadius + 0.3) { // 0.3 to przybližony promień gracza
+    if (distanceToPlayer < hitboxRadius + 0.3) { // 0.3 to przybliżony promień gracza
         player.takeDamage(damage);
         return true; // zniszcz pocisk po trafieniu
     }

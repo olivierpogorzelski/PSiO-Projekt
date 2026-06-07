@@ -31,25 +31,63 @@ std::vector<sf::Color> Renderer::scaleImage(const sf::Image& img, int targetW, i
     return result;
 }
 
-// pomocnicza funkcja do sprawdzania czy kolor to magentowe tło (wraz z wygładzonymi krawędziami)
-bool isMagentaBackground(const sf::Color& c) {
+// bardzo agresywny filtr wyłącznie dla miecza (usuwa fioletowe wygładzenia krawędzi)
+bool isMagentaBackgroundAggressive(const sf::Color& c) {
     if (c.a == 0) return true;
-    if (c.r == 255 && c.g == 0 && c.b == 255) return true;
+    if (c.r > 240 && c.g < 20 && c.b > 240) return true;
     
-    // usuwanie antyaliasingu magenty (tzw. fringe), który tworzy fioletowe obwódki na krawędziach
-    // zwykle na granicy tła czerwony i niebieski znacznie przewyžszają zielony.
+    // usuwa wszystkie fioletowawe odcienie (fringe)
     if (c.r > c.g + 15 && c.b > c.g + 15) {
-        // skoro magenta to r == b, to krawędzie antyaliasingowe tež powinny mieć zbližone wartości r i b
-        if (std::abs(c.r - c.b) < 40) return true;
+        if (std::abs(c.r - c.b) < 60) return true;
     }
     return false;
 }
 
-// sprawdza, czy piksel naležy do postaci (nie jest tłem ani czarną linią siatki)
-bool isForegroundPixel(const sf::Color& c) {
-    if (isMagentaBackground(c)) return false;
-    // ciemne piksele (czarne linie siatki) ignorujemy podczas szukania granic!
-    // prawdziwa postać i tak będzie miała w tej samej kolumnie jaśniejsze piksele.
+// pomocnicza funkcja do sprawdzania czy kolor to magentowe tło
+bool isMagentaBackground(const sf::Color& c, bool isZjawa = false, int relX = 250, int relY = 200, int frameIndex = 0) {
+    int r = c.r;
+    int g = c.g;
+    int b = c.b;
+
+    if (isZjawa) {
+        // czyste jasne tło magentowe (r>200, b>200) usuwamy zanim zaczniemy chronić aury
+        if (r > 200 && b > 200 && g < 50) return true;
+
+        // zjawa: ostateczny zabójca "różowej obwódki" powstałej z antyaliasingu w programie graficznym.
+        // ucinamy wszystko co zdradza objawy magenty powyżej poziomu płaszcza (r~50)
+        if (r > 75 && b > 75 && std::abs(r - b) < 60 && g < r - 15 && g < b - 15) {
+            
+            // prawe kule (relx > 450) mają fioletową poświatę (r~132)! chronimy je tylko w klatkach ataku (2 i 3).
+            if ((frameIndex == 2 || frameIndex == 3) && relX > 450) {
+                return false; // tło (r>200) ucięliśmy u góry! tutaj trafia tylko ciemniejsza poświata (r~132).
+            }
+
+            return true; // usuń całą resztę zanieczyszczonej magenty
+        }
+        
+        // zjawa: oczyszczacz "lewego marginesu" (niedomalowane czarne tło na pikselach 0-60)
+        if (relX < 60 && g < 80) return true;
+
+        // zjawa: zabójca czarnej pionowej kreski (lewej ramki odessanej z następnej komórki).
+        if (relX >= 550 && r < 60 && g < 60 && b < 60) return true;
+        
+        if (r > 100 && b > 100 && std::abs(r - b) < 40 && g < 80) return true;
+    } else {
+        // dla goblina i szkieletów
+        if (r > g + 10 && b > g + 10) {
+            if (std::abs(r - b) < 60) return true;
+        }
+    }
+    
+    if (r == 255 && g == 0 && b == 255) return true;
+    if (c.r > 240 && c.g < 20 && c.b > 240) return true;
+    
+    return false;
+}
+
+// sprawdza, czy piksel należy do postaci
+bool isForegroundPixel(const sf::Color& c, bool isZjawa = false, int relX = 250, int relY = 200, int frameIndex = 0) {
+    if (isMagentaBackground(c, isZjawa, relX, relY, frameIndex)) return false;
     if (c.r < 20 && c.g < 20 && c.b < 20) return false;
     return true;
 }
@@ -59,10 +97,10 @@ void Renderer::extractSpriteFrames(int textureIndex, const sf::Image& img) {
     int origW = img.getSize().x;
     int origH = img.getSize().y;
     
-    // zdjĘcia wrogÓw (indeksy 0-5) majĄ dwa rzĘdy! zdjĘcia itemÓw (6-8) majĄ jeden rzĄd!
+    // zdjęcia wrogów (indeksy 0-5) mają dwa rzędy! zdjęcia itemów (6-8) mają jeden rząd!
     int blockH = (textureIndex < 6) ? (origH / 2) : origH; 
     
-    // zakładamy, že obraz jest równo podzielony na klatki (jeśli to wróg to 5 klatek, inaczej 1)
+    // zakładamy, że obraz jest równo podzielony na klatki (jeśli to wróg to 5 klatek, inaczej 1)
     int numFrames = (textureIndex >= 6) ? 1 : 5;
     int frameW = origW / numFrames;
     
@@ -75,21 +113,59 @@ void Renderer::extractSpriteFrames(int textureIndex, const sf::Image& img) {
         int cellMaxX = (cellIdx + 1) * frameW - 1;
         if (cellIdx == numFrames - 1) cellMaxX = origW - 1;
         
-        // potĘŻny margines na śmieciowe ramki siatki! wrogowie dostają margines 6 pikseli z každej strony.
-        int pad = (textureIndex >= 6) ? 0 : 6; 
-        int sMinX = cellMinX + pad;
-        int sMaxX = cellMaxX - pad;
-        if (sMinX > sMaxX) { sMinX = cellMinX; sMaxX = cellMaxX; } // fallback dla bardzo małych tekstur
+        // zjawa i wrogówie mają niesymetryczne, niezwykle szerokie klatki (kule magii).
+        // magia tak bardzo wychodzi w prawo, że aż wlewa się na lewą stronę następnej klatki!
+        // dlatego przesuwamy całe okno skanowania o 30 pikseli w prawo.
+        int sMinX = cellMinX;
+        int sMaxX = cellMaxX;
+        int sMinY = 0;
+        int sMaxY = blockH - 1;
+
+        if (textureIndex >= 1 && textureIndex <= 5) {
+            sMinX = cellMinX + 30; // omija lewe krwawiące kule (z poprzedniej klatki)
+            sMaxX = cellMaxX + 30; // domyślnie pozwalamy na czytanie lekko wychodzących sprite'ów
+            
+            // inteligencja dla zjawy (textureindex == 3)
+            if (textureIndex == 3) {
+                // tylko klatka nr 2 ładuje ogromne kule, które wychodzą aż do relx=614! dajemy jej +70 przestrzeni.
+                // klatka nr 3 i pozostałe kończą się wewnątrz własnej komórki (551).
+                if (i == 2) {
+                    sMaxX = cellMaxX + 70;
+                } else {
+                    sMaxX = cellMaxX;
+                }
+            }
+            
+            if (sMaxX >= origW) sMaxX = origW - 1;
+            sMinY = 40;
+            sMaxY = blockH - 1; // przestajemy ucinać 40 pikseli z dołu, żeby nie obcinać stóp npc!
+        } else {
+            if (sMinX > sMaxX) { sMinX = cellMinX; sMaxX = cellMaxX; }
+        }
         
+        int yOffset = 0;
+        if (textureIndex >= 1 && textureIndex <= 5) {
+            yOffset = 0; // używamy pierwszego rzędu dla wszystkich animacji
+        }
+
         int minX = sMaxX;
         int maxX = sMinX;
-        int minY = blockH;
-        int maxY = 0;
-        
-        // szukamy granic (bounding box) dla rzeczywistych pikseli postaci wewnątrz przyciętej komórki
+        int minY = sMaxY;
+        int maxY = sMinY;
+
+        // szukamy granic (bounding box) omijając sąsiadów i górny/dolny brud!
         for (int x = sMinX; x <= sMaxX; ++x) {
-            for (int y = pad; y < blockH - pad; ++y) {
-                if (isForegroundPixel(img.getPixel(x, y))) {
+            for (int y = sMinY; y <= sMaxY; ++y) {
+                sf::Color c = img.getPixel(x, y + yOffset);
+                int relX = x - cellMinX;
+                int relY = y;
+                bool isForeground = false;
+                if (textureIndex == 3) {
+                    isForeground = isForegroundPixel(c, true, relX, relY, i);
+                } else {
+                    isForeground = isForegroundPixel(c);
+                }
+                if (isForeground) {
                     if (x < minX) minX = x;
                     if (x > maxX) maxX = x;
                     if (y < minY) minY = y;
@@ -98,18 +174,10 @@ void Renderer::extractSpriteFrames(int textureIndex, const sf::Image& img) {
             }
         }
         
-        if (minY > maxY || minX > maxX) {
-            // klatka pusta! 
-            if (i > 0) {
-                spriteFrames[textureIndex][i] = spriteFrames[textureIndex][i-1];
-                continue;
-            } else {
-                // jeśli pierwsza klatka jest pusta (np. bardzo ciemny pocisk), wymuszamy pełny rozmiar
-                minX = cellMinX;
-                maxX = cellMaxX;
-                minY = 0;
-                maxY = blockH - 1;
-            }
+        // zabezpieczenie przed pustą komórką
+        if (minX > maxX || minY > maxY) {
+            minX = cellMinX; maxX = cellMaxX;
+            minY = 0; maxY = blockH - 1;
         }
         
         int w = maxX - minX + 1;
@@ -117,27 +185,76 @@ void Renderer::extractSpriteFrames(int textureIndex, const sf::Image& img) {
         
         spriteFrames[textureIndex][i].width = w;
         spriteFrames[textureIndex][i].height = h;
-        spriteFrames[textureIndex][i].pixels.resize(w * h);
-        spriteFrames[textureIndex][i].bottomOffset = blockH - maxY;
-        
-        // obliczamy offset
-        float expectedCenter = cellMinX + frameW / 2.0f;
-        if (textureIndex >= 6) expectedCenter = origW / 2.0f;
-        
-        spriteFrames[textureIndex][i].xOffset = (minX + w / 2) - expectedCenter;
         spriteFrames[textureIndex][i].blockH = blockH;
+        spriteFrames[textureIndex][i].xOffset = minX - cellMinX;
+        spriteFrames[textureIndex][i].bottomOffset = blockH - (minY + h);
+        spriteFrames[textureIndex][i].pixels.resize(w * h, sf::Color(0, 0, 0, 0));
         
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
-                sf::Color c = img.getPixel(minX + x, minY + y);
-                if (isMagentaBackground(c)) c = sf::Color(0, 0, 0, 0); 
-                spriteFrames[textureIndex][i].pixels[y * w + x] = c;
+                sf::Color c = img.getPixel(minX + x, minY + y + yOffset);
+                int absX = minX + x;
+                int relX = absX - (i * frameW);
+                int relY = minY + y;
+
+                if (isMagentaBackground(c, textureIndex == 3, relX, relY, i)) {
+                    spriteFrames[textureIndex][i].pixels[y * w + x] = sf::Color(0, 0, 0, 0);
+                } else {
+                    spriteFrames[textureIndex][i].pixels[y * w + x] = c;
+                }
             }
         }
+        
+        // erozja: uniwersalne usuwanie 1-pikselowej cienkiej obwódki po magentowym tle z krawędzi każdego potwóra!
+        if (textureIndex >= 1 && textureIndex <= 5 && w > 2 && h > 2) {
+            std::vector<sf::Color> newPixels = spriteFrames[textureIndex][i].pixels;
+            for (int py = 1; py < h - 1; ++py) {
+                for (int px = 1; px < w - 1; ++px) {
+                    sf::Color c = spriteFrames[textureIndex][i].pixels[py * w + px];
+                    // złap jakikolwiek gradient obwódki antyaliasingu o zabarwieniu magentowym (r i b wyższe niż g)
+                    if (c.a != 0 && c.r > c.g + 5 && c.b > c.g + 5 && std::abs((int)c.r - (int)c.b) < 40) {
+                        // sprawdź czy jest pikselem krawędziowym (dotyka przezroczystości)
+                        bool touchesTransparent = 
+                            spriteFrames[textureIndex][i].pixels[(py - 1) * w + px].a == 0 ||
+                            spriteFrames[textureIndex][i].pixels[(py + 1) * w + px].a == 0 ||
+                            spriteFrames[textureIndex][i].pixels[py * w + (px - 1)].a == 0 ||
+                            spriteFrames[textureIndex][i].pixels[py * w + (px + 1)].a == 0;
+                            
+                        // odetnij zanieczyszczony piksel obwódki!
+                        if (touchesTransparent) newPixels[py * w + px] = sf::Color(0,0,0,0);
+                    }
+                }
+            }
+            spriteFrames[textureIndex][i].pixels = newPixels;
+        }
+    }
+    
+    // debug: zapisz wszystkie klatki zjawy jako duży poziomy pasek!
+    if (textureIndex == 3) {
+        int totalW = 0;
+        int maxH = 0;
+        for (int i=0; i<numFrames; ++i) {
+            totalW += spriteFrames[textureIndex][i].width;
+            if (spriteFrames[textureIndex][i].height > maxH) maxH = spriteFrames[textureIndex][i].height;
+        }
+        sf::Image dbg;
+        dbg.create(totalW > 0 ? totalW : 100, maxH > 0 ? maxH : 100, sf::Color::Transparent);
+        int curX = 0;
+        for (int i=0; i<numFrames; ++i) {
+            int w = spriteFrames[textureIndex][i].width;
+            int h = spriteFrames[textureIndex][i].height;
+            for(int y = 0; y < h; ++y) {
+                for(int x = 0; x < w; ++x) {
+                    dbg.setPixel(curX + x, y, spriteFrames[textureIndex][i].pixels[y * w + x]);
+                }
+            }
+            curX += w;
+        }
+        dbg.saveToFile("DEBUG_ALL_ZJAWA.png");
     }
 }
 
-// pomocnicza funkcja do znajdowania ściežki
+// pomocnicza funkcja do znajdowania ścieżki
 std::string getTexPath(const std::string& filename) {
     std::vector<std::string> paths = {
         filename,
@@ -192,7 +309,7 @@ void Renderer::loadTextures() {
         }
     }
     
-    // wczytanie broni gracza z bezbłędnym nałoženiem przezroczystości
+    // wczytanie broni gracza z bezbłędnym nałożeniem przezroczystości
     sf::Image weaponImg;
     playerWeaponFrames.clear();
     if (weaponImg.loadFromFile(getTexPath("textures/miecz-2.png"))) {
@@ -202,7 +319,7 @@ void Renderer::loadTextures() {
         std::vector<bool> colHasPixels(w, false);
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
-                if (isMagentaBackground(weaponImg.getPixel(x, y))) {
+                if (isMagentaBackgroundAggressive(weaponImg.getPixel(x, y))) {
                     weaponImg.setPixel(x, y, sf::Color(0, 0, 0, 0));
                 } else {
                     colHasPixels[x] = true;
@@ -272,6 +389,40 @@ void Renderer::loadTextures() {
         playerWeaponSprite.setTexture(playerWeaponTexture);
         playerWeaponSprite.setScale(1.0f, 1.0f);
     }
+    
+    sf::Image hudImg;
+    if (hudImg.loadFromFile(getTexPath("textures/hud-2.png"))) {
+        int w = hudImg.getSize().x;
+        int h = hudImg.getSize().y;
+        
+        // znalezienie granic (crop) by dopasować się idealnie do widocznego hud-a
+        unsigned int minX = w, minY = h;
+        unsigned int maxX = 0, maxY = 0;
+        for (int y = h / 2; y < h; ++y) { // skanujemy tylko dolną połowę obrazu, by zignorować wklejony zrzut ekranu ide z góry
+            for (int x = 0; x < w; ++x) {
+                if (hudImg.getPixel(x, y).a > 0) { // uwzględnia tylko nieprzezroczyste piksele
+                    if ((unsigned int)x < minX) minX = x;
+                    if ((unsigned int)y < minY) minY = y;
+                    if ((unsigned int)x > maxX) maxX = x;
+                    if ((unsigned int)y > maxY) maxY = y;
+                }
+            }
+        }
+        
+        if (minX <= maxX && minY <= maxY) {
+            sf::Image cropped;
+            unsigned int cropW = maxX - minX + 1;
+            unsigned int cropH = maxY - minY + 1;
+            cropped.create(cropW, cropH, sf::Color(0,0,0,0));
+            cropped.copy(hudImg, 0, 0, sf::IntRect(minX, minY, cropW, cropH), true);
+            hudTexture.loadFromImage(cropped);
+        } else {
+            hudTexture.loadFromImage(hudImg);
+        }
+        hudSprite.setTexture(hudTexture);
+    }
+    
+    hudFont.loadFromFile(getTexPath("textures/font.ttf"));
 }
 
 // ustawia pojedynczy piksel na buforze uwzględniając format rgba
@@ -284,7 +435,7 @@ void Renderer::setPixel(int x, int y, sf::Color color) {
     screenPixels[index + 3] = color.a;
 }
 
-// prosty algorytm sortujący wrogów i przedmioty od najdalszego do najbližszego
+// prosty algorytm sortujący wrogów i przedmioty od najdalszego do najbliższego
 void Renderer::sortSprites(std::vector<int>& order, std::vector<double>& dist) {
     std::vector<std::pair<double, int>> sprites(order.size());
     for(size_t i = 0; i < order.size(); i++) {
@@ -292,7 +443,7 @@ void Renderer::sortSprites(std::vector<int>& order, std::vector<double>& dist) {
         sprites[i].second = order[i];
     }
     std::sort(sprites.begin(), sprites.end());
-    // odwracamy žeby rysować najpierw to co z tyłu
+    // odwracamy żeby rysować najpierw to co z tyłu
     for(size_t i = 0; i < order.size(); i++) {
         dist[i] = sprites[order.size() - i - 1].first;
         order[i] = sprites[order.size() - i - 1].second;
@@ -301,7 +452,7 @@ void Renderer::sortSprites(std::vector<int>& order, std::vector<double>& dist) {
 
 // główne renderowanie
 void Renderer::render(sf::RenderWindow& window, const Player& player, const Map& map) {
-    // czyszczenie bufora na czarno žeby uniknąć śmieci
+    // czyszczenie bufora na czarno żeby uniknąć śmieci
     for(int i = 0; i < bufferWidth * bufferHeight * 4; i+=4) {
         screenPixels[i] = 0;
         screenPixels[i+1] = 0;
@@ -317,7 +468,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
     double planeX = player.getPlaneX();
     double planeY = player.getPlaneY();
 
-    // pętla po každej pionowej kolumnie ekranu
+    // pętla po każdej pionowej kolumnie ekranu
     for (int x = 0; x < bufferWidth; x++) {
         double cameraX = 2 * x / double(bufferWidth) - 1;
         double rayDirX = dirX + planeX * cameraX;
@@ -421,7 +572,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
             texPos += step;
             sf::Color color = mapTextures[texNum][texWidth * texY + texX];
 
-            // przyciemnienie ścian žeby dać iluzję cienia
+            // przyciemnienie ścian żeby dać iluzję cienia
             if (side == 1) {
                 color.r /= 2; color.g /= 2; color.b /= 2;
             }
@@ -447,7 +598,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
             setPixel(x, y, mapTextures[5][texWidth * floorTexY + floorTexX]);
         }
         
-        // zapisanie dystansu do ściany dla danego x ekranu na potrzeby sortowania dogłębnego sprite'ów
+        // zapisanie dystansu do ściany dla danego x ekranu na potrżeby sortowania dogłębnego sprite'ów
         zBuffer[x] = perpWallDist;
     }
 
@@ -469,14 +620,14 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
         double spritex = enemies[enemyorder[i]].getx() - posx;
         double spritey = enemies[enemyorder[i]].gety() - posy;
         
-        // macierz odwrotnej kamery žeby przetłumaczyć to na piksele ekranowe
+        // macierz odwrotnej kamery żeby przetłumaczyć to na piksele ekranowe
         double invdet = 1.0 / (planex * diry - dirx * planey);
         double transformx = invdet * (diry * spritex - dirx * spritey);
         double transformy = invdet * (-planey * spritex + planex * spritey);
         
         int spritescreenx = int((bufferwidth / 2) * (1 + transformx / transformy));
         
-        // wymiary spritea opierają się o transformy žeby nie było efektu rybiego oka
+        // wymiary spritea opierają się o transformy żeby nie było efektu rybiego oka
         int spriteheight = std::abs(int(bufferheight / transformy));
         int drawstarty = -spriteheight / 2 + bufferheight / 2;
         if(drawstarty < 0) drawstarty = 0;
@@ -500,7 +651,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
                     
                     sf::color color = textures[enemies[enemyorder[i]].gettexture()][texwidth * texy + texx];
                     
-                    // pomijamy kolor jeśli jego alfa jest równa zero albo užywamy koloru czarnego jako tło zakładamy že czysty czarny to brak piksela
+                    // pomijamy kolor jeśli jego alfa jest równa zero albo używamy koloru czarnego jako tło zakładamy że czysty czarny to brak piksela
                     if(color.r != 0 || color.g != 0 || color.b != 0) {
                         setpixel(stripe, y, color);
                     }
@@ -508,7 +659,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
             }
         }
     }}*/
-    // tworzymy strukturę pomocniczą tylko na potrzeby tej funkcji
+    // tworzymy strukturę pomocniczą tylko na potrżeby tej funkcji
     struct TempSprite {
         double x;
         double y;
@@ -521,7 +672,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
     // kopia wrogów do wspólnej paczki
     const auto& enemies = map.getEnemies();
     for(const auto& enemy : enemies) {
-        allSprites.push_back({ enemy.getX(), enemy.getY(), enemy.getTexture(), static_cast<int>(enemy.getState()), enemy.isMirrored() });
+        allSprites.push_back({ enemy->getX(), enemy->getY(), enemy->getTexture(), static_cast<int>(enemy->getState()), enemy->isMirrored() });
     }
 
     // kopia niepodniesionych przedmiotów do tej samej wspólnej paczki
@@ -539,7 +690,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
         allSprites.push_back({ proj.getX(), proj.getY(), proj.getTexture(), 0, false });
     }
     
-    //  wspÓlne sortowanie
+    //  wspólne sortowanie
     size_t numSprites = allSprites.size();
     if (numSprites > 0) {
         std::vector<int> spriteOrder(numSprites);
@@ -557,7 +708,7 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
         sortSprites(spriteOrder, spriteDistance);
 
 
-        // jedna wspÓlna pĘtla rysujĄca metodĄ lodeva
+        // jedna wspólna pętla rysująca metodą lodeva
 
         for(size_t i = 0; i < numSprites; i++) {
             int currentIdx = spriteOrder[i];
@@ -573,16 +724,33 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
             double transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
             int spriteScreenX = int((bufferWidth / 2) * (1 + transformX / transformY));
+            int textureIndex = allSprites[currentIdx].texture;
 
-            int spriteHeight = std::abs(int(bufferHeight / transformY)); // to odpowiada frame.blockh
-            double scale = (double)spriteHeight / frame.blockH;
+            // obliczamy fizyczną szerokość sprite'a na ekranie!
+            // uwaga: ponieważ zjawa i wrogówie mają klatki w dwóch rzędach (więc ich tekstury są wysokie na dysku),
+            // musimy manualnie pomnożyć szerokość przez 2, aby przywrócić im proporcje kwadratu (lub szerokiego płaszcza).
+            int spriteWidth = abs(int(bufferHeight / (transformY))) * frame.width / frame.height;
+            if (textureIndex >= 6 || textureIndex == 3) {
+                // dla tekstur z dwoma rzędami klatek, mnożymy szerokość x2, aby odzyskać właściwe proporcje
+                spriteWidth = spriteWidth * 2;
+            }
+
+            int spriteHeight = std::abs(int(bufferHeight / transformY));
+            double scaleModifier = 1.0;
+            if (allSprites[currentIdx].texture == 6) { // orb
+                scaleModifier = 0.3; // mniejsza skala dla orba (30% bazowego rozmiaru)
+            } else if (allSprites[currentIdx].texture == 8) { // potka
+                scaleModifier = 0.4; // zmniejszamy miksturę leczenia (40%)
+            }
+            double scale = ((double)spriteHeight / frame.blockH) * scaleModifier;
             
             int drawHeight = frame.height * scale;
             int drawWidth = frame.width * scale;
 
             // pozycjonowanie w pionie: dół sprite'a ma dotykać podłogi pomniejszonej o bottomoffset
             int floorY = spriteHeight / 2 + bufferHeight / 2;
-            int drawEndY = floorY - frame.bottomOffset * scale;
+            int unclampedDrawEndY = floorY - frame.bottomOffset * scale;
+            int drawEndY = unclampedDrawEndY;
             int drawStartY = drawEndY - drawHeight;
             
             if(drawStartY < 0) drawStartY = 0;
@@ -607,13 +775,19 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
                 if(transformY > 0 && stripe > 0 && stripe < bufferWidth && transformY < zBuffer[stripe]) {
                     for(int y = drawStartY; y < drawEndY; y++) {
                         // poprawny texy oparty na drawstarty bazowym (bez przycięcia)
-                        int trueDrawStartY = drawEndY - drawHeight;
+                        int trueDrawStartY = unclampedDrawEndY - drawHeight;
                         int texY = int(256 * (y - trueDrawStartY) * frame.height / drawHeight) / 256;
 
                         if (texX >= 0 && texX < frame.width && texY >= 0 && texY < frame.height) {
                             sf::Color color = frame.pixels[frame.width * texY + texX];
 
                             if(color.a != 0) {
+                                // czerwone wypełnienie (tint) dla wrogów przy otrzymywaniu obrażeń (stan 3 - hurt)
+                                if (allSprites[currentIdx].texture < 6 && allSprites[currentIdx].state == 3) {
+                                    color.r = static_cast<sf::Uint8>(std::min(255, static_cast<int>(color.r) + 150));
+                                    color.g = static_cast<sf::Uint8>(color.g * 0.2);
+                                    color.b = static_cast<sf::Uint8>(color.b * 0.2);
+                                }
                                 setPixel(stripe, y, color);
                             }
                         }
@@ -629,32 +803,70 @@ void Renderer::render(sf::RenderWindow& window, const Player& player, const Map&
 }
 
 
-// rysowanie bazowego interfejsu
+// rysowanie bazowego interfejsu z przezroczystym obrazkiem i działającym tłem (krwią)
 void Renderer::drawHud(sf::RenderWindow& window, const Player& player) {
-    sf::RectangleShape hudBar(sf::Vector2f(1920.0f, 80.0f));
-    hudBar.setPosition(0.0f, 1000.0f);
-    hudBar.setFillColor(sf::Color(30, 30, 30));
-    sf::RectangleShape healthBackground(sf::Vector2f(300.0f, 40.0f));
-    healthBackground.setPosition(50.0f, 1020.0f);
-    healthBackground.setFillColor(sf::Color(50, 0, 0));
-    // rzutujemy hp na float, žeby dzielenie nie ucięło nam ułamków (dzielenie całkowite)
-    float maxBarWidth = 300.0f;
-    float currentBarWidth = maxBarWidth * (static_cast<float>(player.getHp()) / 100.0f);
-    // zabezpieczenie: pasek nie može mieć ujemnej szerokości
-    if (currentBarWidth < 0.0f) currentBarWidth = 0.0f;
-    sf::RectangleShape healthBar(sf::Vector2f(currentBarWidth, 40.0f));
-    healthBar.setPosition(50.0f, 1020.0f);
-    healthBar.setFillColor(sf::Color(200, 0, 0));
-    
-    // najpierw rysujemy wielkie szare tło całego interfejsu
-    window.draw(hudBar);
-    // potem rysujemy ciemnoczerwony podkład paska zdrowia
-    window.draw(healthBackground);
-    // na samym końcu nakładamy właściwy, jasnoczerwony pasek zdrowia
-    window.draw(healthBar);
+    if (hudTexture.getSize().x > 0) {
+        sf::Vector2u texSize = hudTexture.getSize();
+        
+        // skalujemy proporcjonalnie, żeby kula była faktycznie kulą, a nie spłaszczoną elipsą!
+        float scaleY = (screenHeight * 0.25f) / texSize.y;
+        float scaleX = scaleY; // utrzymujemy proporcje!
+        
+        float hudW = texSize.x * scaleX;
+        float hudH = texSize.y * scaleY;
+        float hudY = screenHeight - hudH;
+        float hudX = (screenWidth - hudW) / 2.0f; // centrujemy hud na dole ekranu
+
+        hudSprite.setScale(scaleX, scaleY);
+        hudSprite.setPosition(hudX, hudY);
+
+        // parametry idealnie wpasowujące się w prawdziwy otwór w hud
+        float radX = (texSize.x * 0.0747f) * scaleX;
+        float radY = (texSize.y * 0.2868f) * scaleY;
+        float orbX = hudX + (texSize.x * 0.1226f) * scaleX;
+        float orbY = hudY + (texSize.y * 0.5698f) * scaleY;
+
+        // 1. czarne tło tylko pod kulę (aby widać było próżnię przy braku zdrowia)
+        sf::CircleShape bgCircle(radX);
+        bgCircle.setScale(1.0f, radY / radX);
+        bgCircle.setFillColor(sf::Color(10, 10, 10)); // ciemne
+        bgCircle.setOrigin(radX, radX);
+        bgCircle.setPosition(orbX, orbY);
+        window.draw(bgCircle);
+
+        // 2. czerwony płyn życia
+        float hpPercent = std::max(0.0f, std::min(100.0f, static_cast<float>(player.getHp()))) / 100.0f;
+        sf::CircleShape fluidCircle(radX);
+        fluidCircle.setScale(1.0f, radY / radX);
+        fluidCircle.setFillColor(sf::Color(200, 20, 20));
+        fluidCircle.setOrigin(radX, radX);
+        fluidCircle.setPosition(orbX, orbY);
+        window.draw(fluidCircle);
+        
+        // maska obcinająca płyn od góry (symuluje opadanie cieczy)
+        float emptyHeight = (radY * 2.0f) * (1.0f - hpPercent);
+        if (emptyHeight > 0) {
+            sf::RectangleShape mask(sf::Vector2f(radX * 2.5f, emptyHeight));
+            mask.setFillColor(sf::Color(10, 10, 10)); // takie samo jak bgcircle
+            mask.setOrigin(mask.getSize().x / 2.0f, 0);
+            mask.setPosition(orbX, orbY - radY);
+            window.draw(mask);
+        }
+
+        // 3. właściwa ramka hud na wierzch (przezroczysta dziura na kulę, własne czarne sloty)
+        window.draw(hudSprite);
+
+        // 4. efekt przezroczystego szkła na wierzch kuli (dodaje realizmu)
+        sf::CircleShape glass(radX);
+        glass.setScale(1.0f, radY / radX);
+        glass.setFillColor(sf::Color(255, 255, 255, 25)); // delikatna biel z alphą (szkło)
+        glass.setOrigin(radX, radX);
+        glass.setPosition(orbX, orbY);
+        window.draw(glass);
+    }
 }
 
-// rysowanie aktywnej broni zaležnie od stanu gracza
+// rysowanie aktywnej broni zależnie od stanu gracza
 void Renderer::drawWeapon(sf::RenderWindow& window, const Player& player) {
     if (playerWeaponTexture.getSize().x == 0 || playerWeaponFrames.empty()) return;
 
@@ -708,18 +920,25 @@ void Renderer::drawWeapon(sf::RenderWindow& window, const Player& player) {
     // ustawiamy środek obrotu na środek dolnej krawędzi wyciętej klatki
     playerWeaponSprite.setOrigin(currentFrame.width / 2.0f, currentFrame.height);
     
-    // odbijamy lustrzanie tylko pierwszą klatkę
+    // miecz powiększony do 1.0f
+    float scale = 1.0f;
+    // odbijamy lustrzanie tylko pierwszą klatkę, skalujemy do sensownego rozmiaru
     if (frameIndex == 0 && isSpriteSheet) {
-        playerWeaponSprite.setScale(-2.0f, 2.0f); 
+        playerWeaponSprite.setScale(-scale, scale); 
     } else {
-        playerWeaponSprite.setScale(2.0f, 2.0f);
+        playerWeaponSprite.setScale(scale, scale);
     }
     
-    // miecz z powrotem z prawej strony ekranu (przesunięty o 20 px w prawo)
-    playerWeaponSprite.setPosition(1620.0f - animOffsetX, 1080.0f + animOffsetY);
+    // miecz przyklejony do prawej krawędzi ekranu
+    float swordX = screenWidth - (currentFrame.width / 2.0f * scale);
+    float hudHeight = screenHeight * 0.25f;
     
-    // zwykła rotacja
-    playerWeaponSprite.setRotation(rotation);
+    // opuszczamy miecz niżej, tak by chował się za hud-em
+    playerWeaponSprite.setPosition(swordX - animOffsetX, screenHeight - hudHeight + 420.0f + animOffsetY);
+    
+    // rotacja bazowa dla postawy idle i na to nakładana animacja
+    float baseRotation = 0.0f; // 0 zamiast -15 by miecz był bardziej pionowo i widoczny w całości
+    playerWeaponSprite.setRotation(baseRotation + rotation);
     
     window.draw(playerWeaponSprite);
 }
