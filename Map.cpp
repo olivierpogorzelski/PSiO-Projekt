@@ -113,7 +113,24 @@ void Map::update(double frameTime, Player& player) { // przekazujemy calego grac
             ++it;
         }
     }
-    
+    for (auto& enemy : enemies) {
+        // Jeśli wróg nie żyje, ale JESZCZE nie wyrzucił przedmiotu
+        if (enemy->isDead() && !enemy->hasSpawnedDrop()) {
+
+            // Pobieramy przedmiot, który ma wypaść z tego konkretnego typu wroga
+            int dropTex = enemy->getDropItemTexture();
+
+            if (dropTex != 0) {
+                // Tworzymy nowy przedmiot na ziemi w miejscu śmierci
+                items.push_back(Item(enemy->getX(), enemy->getY(), dropTex));
+            }
+
+            // Oznaczamy wroga flagą true, aby w kolejnej klatce (update)
+            // program nie stworzył kolejnej mikstury z tych samych zwłok
+            enemy->setDropSpawned(true);
+        }
+    }
+
     for (auto it = items.begin(); it != items.end(); ) {
         if (it->checkCollision(player.getX(), player.getY())) {
             bool pickedUp = false;
