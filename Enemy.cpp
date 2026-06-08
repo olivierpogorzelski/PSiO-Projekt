@@ -111,7 +111,7 @@ bool Enemy::isDead() const {
 int Enemy::getDropItemTexture() const {
 
     if (texture == 3 || texture == 5) {
-        return 1;
+        return 8;
     }
     return 0; // 0 oznacza brak dropu
 }
