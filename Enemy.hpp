@@ -1,4 +1,4 @@
-﻿ #pragma once
+﻿   #pragma once
 // deklaracja zapowiadajaca:
 class Map;
 class Player;
@@ -31,6 +31,7 @@ public:
     bool isMirrored() const { return mirrored; }
     bool hasSpawnedDrop() const { return dropSpawned; }
     void setDropSpawned(bool value) { dropSpawned = value; }
+    void setState(AnimationState a)  { state=a;}
 
 protected:
     double x;
