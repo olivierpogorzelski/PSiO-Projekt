@@ -111,12 +111,16 @@ void Map::loadFromFile(const std::string& filePath) {
                         } else if (tex == 3) {
                             enemies.push_back(std::make_unique<Enemy>(ex, ey, 3));
                         } else if (tex == 4) {
+                            enemies.push_back(std::make_unique<SkeletonSword>(ex, ey));
+                        } else if (tex == 5) {
                             enemies.push_back(std::make_unique<SkeletonBow>(ex, ey));
+                        } else if (tex == 0) {
+                            enemies.push_back(std::make_unique<BigDemon>(ex, ey));
                         } else {
                             std::cerr << "Ostrzezenie: Nieznany typ przeciwnika (tex ID: " << tex << ")\n";
                         }
 
-                        // Przypisanie wczytanego HP do nowo stworzonego potwora!
+                        // Przypisanie wczytanego HP do nowo stworzonego potwora
                         if (!enemies.empty()) {
                             enemies.back()->setHp(hp);
                         }
