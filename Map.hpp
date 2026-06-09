@@ -5,11 +5,14 @@
 #include "Projectile.hpp"
 #include "Constants.hpp"
 #include <memory>
+#include <fstream>
+#include <iostream>
 
 // klasa mapy przechowujaca strukture korytarzy i wrogow
 class Map {
 public:
     Map();
+    Map(const std::string& filePath);
     int getTile(int x, int y) const;
     int getWidth() const;
     int getHeight() const;
@@ -29,6 +32,7 @@ public:
     const std::vector<Projectile>& getProjectiles() const;
 
     void addProjectile(const Projectile& proj);
+    void loadFromFile(const std::string& filePath);
 
 private:
     int worldMap[mapWidth][mapHeight];

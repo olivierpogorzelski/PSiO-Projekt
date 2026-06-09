@@ -6,7 +6,8 @@ enum class GameState {
     playing,
     paused,
     slot_selection,
-    difficulty_selection
+    difficulty_selection,
+    level_selection
 };
 
 

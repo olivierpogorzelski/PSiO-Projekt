@@ -107,6 +107,9 @@ void Game::initMenu() {
     
     slotText.setFont(menuFont);
     slotText.setCharacterSize(50);
+    level1Text.setFont(menuFont);     level1Text.setString("Mapa 1");
+    level2Text.setFont(menuFont);     level2Text.setString("Mapa 2");
+    backText.setFont(menuFont);       backText.setString("Powrot do Menu");
 }
 
 // glowna petla gry
@@ -150,11 +153,12 @@ void Game::processEvents() {
         
         // obsluga klawiszy menu (puszczenie)
         if (event.type == sf::Event::KeyReleased) {
-            // zabezpieczenie przed podwojnym kliknieciem (debounce) 
+            // zabezpieczenie przed podwojnym kliknieciem (debounce)
             if (inputClock.getElapsedTime().asSeconds() < 0.25f) {
-                continue; 
+                continue;
             }
-            
+
+            // 1. MENU GŁÓWNE
             if (state == GameState::menu) {
                 if (event.key.code == sf::Keyboard::Up) {
                     selectedMenuOption--;
@@ -177,7 +181,9 @@ void Game::processEvents() {
                         window.close();
                     }
                 }
-            } else if (state == GameState::slot_selection) {
+            }
+            // 2. WYBÓR SLOTU ZAPISU
+            else if (state == GameState::slot_selection) {
                 if (event.key.code == sf::Keyboard::Left || event.key.code == sf::Keyboard::Up) {
                     selectedSlot--;
                     if (selectedSlot < 1) selectedSlot = maxSlots;
@@ -189,8 +195,8 @@ void Game::processEvents() {
                 else if (event.key.code == sf::Keyboard::Enter) {
                     currentSlot = selectedSlot;
                     if (slotAction == SlotAction::NewGame) {
-                        // opcjonalnie: reset mapy/gracza
-                        state = GameState::difficulty_selection;
+                        // ZMIANA: Zamiast od razu do trudności, idziemy do WYBORU MAPY!
+                        state = GameState::level_selection;
                         inputClock.restart();
                     } else if (slotAction == SlotAction::LoadGame) {
                         loadGame(currentSlot);
@@ -209,7 +215,39 @@ void Game::processEvents() {
                         state = GameState::paused;
                     }
                 }
-            } else if (state == GameState::difficulty_selection) {
+            }
+            // 3. WYBÓR MAPY (Teraz poprawnie wydzielony na zewnątrz!)
+            else if (state == GameState::level_selection) {
+                if (event.key.code == sf::Keyboard::Up) {
+                    selectedLevelOption--;
+                    if (selectedLevelOption < 0) selectedLevelOption = 2;
+                }
+                else if (event.key.code == sf::Keyboard::Down) {
+                    selectedLevelOption++;
+                    if (selectedLevelOption > 2) selectedLevelOption = 0;
+                }
+                else if (event.key.code == sf::Keyboard::Enter) {
+                    if (selectedLevelOption == 0) {
+                        loadLevel(1);
+                        state = GameState::difficulty_selection;
+                        inputClock.restart();
+                    }
+                    else if (selectedLevelOption == 1) {
+                        loadLevel(2);
+                        state = GameState::difficulty_selection;
+                        inputClock.restart();
+                    }
+                    else if (selectedLevelOption == 2) {
+                        state = GameState::slot_selection;
+                        inputClock.restart();
+                    }
+                }
+                else if (event.key.code == sf::Keyboard::Escape) {
+                    state = GameState::slot_selection;
+                }
+            }
+            // 4. WYBÓR POZIOMU TRUDNOŚCI
+            else if (state == GameState::difficulty_selection) {
                 if (event.key.code == sf::Keyboard::Up) {
                     selectedDifficultyOption--;
                     if (selectedDifficultyOption < 0) selectedDifficultyOption = 2;
@@ -222,19 +260,23 @@ void Game::processEvents() {
                     if (selectedDifficultyOption == 0) currentDifficulty = Difficulty::Easy;
                     else if (selectedDifficultyOption == 1) currentDifficulty = Difficulty::Normal;
                     else if (selectedDifficultyOption == 2) currentDifficulty = Difficulty::Hard;
-                    
+
                     saveGame(currentSlot); // natychmiastowy zapis by zajac slot
                     state = GameState::playing;
                     inputClock.restart();
                 }
                 else if (event.key.code == sf::Keyboard::Escape) {
-                    state = GameState::slot_selection;
+                    state = GameState::level_selection; // Powrót do wyboru mapy
                 }
-            } else if (state == GameState::playing) {
+            }
+            // 5. ROZGRYWKA
+            else if (state == GameState::playing) {
                 if (event.key.code == sf::Keyboard::Escape) {
                     state = GameState::paused;
                 }
-            } else if (state == GameState::paused) {
+            }
+            // 6. PAUZA
+            else if (state == GameState::paused) {
                 if (event.key.code == sf::Keyboard::Up) {
                     pausedMenuOption--;
                     if (pausedMenuOption < 0) pausedMenuOption = 3;
@@ -244,25 +286,26 @@ void Game::processEvents() {
                     if (pausedMenuOption > 3) pausedMenuOption = 0;
                 }
                 else if (event.key.code == sf::Keyboard::Enter) {
-                    if (pausedMenuOption == 0) { // kontynuuj
+                    if (pausedMenuOption == 0) {
                         state = GameState::playing;
-                    } else if (pausedMenuOption == 1) { // zapisz
+                    } else if (pausedMenuOption == 1) {
                         slotAction = SlotAction::SaveGame;
                         updateSaveInfoCache();
                         state = GameState::slot_selection;
-                    } else if (pausedMenuOption == 2) { // wczytaj
+                    } else if (pausedMenuOption == 2) {
                         slotAction = SlotAction::LoadGame;
                         updateSaveInfoCache();
                         state = GameState::slot_selection;
-                    } else if (pausedMenuOption == 3) { // wyjdz do pulpitu
+                    } else if (pausedMenuOption == 3) {
                         window.close();
                     }
                 }
                 else if (event.key.code == sf::Keyboard::Escape) {
-                    state = GameState::playing; // powrot z pauzy tez klawiszem esc
+                    state = GameState::playing;
                 }
             }
         }
+
     }
 }
 
@@ -290,19 +333,22 @@ void Game::update(double frameTime) {
 
 std::string Game::getSaveInfo(int slot) {
     std::string filename = "save" + std::to_string(slot) + ".txt";
+    std::string fullPath = getAssetPath(filename);
+
     struct stat result;
-    if (stat(filename.c_str(), &result) == 0) {
+    if (stat(fullPath.c_str(), &result) == 0) {
         char buffer[100];
-        // format: yyyy-mm-dd hh:mm
         strftime(buffer, sizeof(buffer), "(%Y-%m-%d %H:%M)", localtime(&result.st_mtime));
-        
-        // podglad pliku by wyciagnac poziom trudnosci
-        std::string diffStr = "Normalny"; // domyslny fallback
-        std::ifstream file(filename);
+
+        std::string diffStr = "Normalny";
+        std::ifstream file(fullPath);
         if (file.is_open()) {
             std::string header;
             if (file >> header) {
-                if (header == "[DIFFICULTY]") {
+                if (header == "[LEVEL]") {
+                    int l; file >> l;
+                }
+                if (file >> header && header == "[DIFFICULTY]") {
                     int d;
                     if (file >> d) {
                         if (d == 0) diffStr = "Latwy";
@@ -311,13 +357,13 @@ std::string Game::getSaveInfo(int slot) {
                     }
                 }
             }
+            file.close();
         }
-        
+
         return "[" + diffStr + "] " + std::string(buffer);
     }
     return "[ Wolne ]";
 }
-
 void Game::updateSaveInfoCache() {
     for (int i = 1; i <= maxSlots; ++i) {
         cachedSaveInfo[i] = getSaveInfo(i);
@@ -326,62 +372,88 @@ void Game::updateSaveInfoCache() {
 
 void Game::saveGame(int slot) {
     std::string filename = "save" + std::to_string(slot) + ".txt";
-    std::ofstream file(filename);
+
+    // Szukamy ścieżki za pomocą Twojej funkcji assetów
+    std::string fullPath = getAssetPath(filename);
+
+    // Jeśli plik nie istnieje, getAssetPath zwróci tylko "save1.txt".
+    // Wtedy musimy wywnioskować ścieżkę na podstawie lokalizacji czcionki,
+    // tak aby save zapisał się obok folderu textures, a nie w losowym miejscu systemu!
+    if (fullPath == filename) {
+        std::string fontPath = getAssetPath("textures/font.ttf");
+        size_t pos = fontPath.find("textures");
+        if (pos != std::string::npos) {
+            fullPath = fontPath.substr(0, pos) + filename;
+        }
+    }
+
+    std::ofstream file(fullPath, std::ios::out | std::ios::trunc);
+
     if (!file.is_open()) {
-        std::cout << "Blad: Nie mozna utworzyc pliku " << filename << "!\n";
+        std::cout << "Blad: Nie mozna utworzyc pliku zapisu pod sciezka: " << fullPath << "\n";
         return;
     }
-    
+
+    file << "[LEVEL]\n";
+    file << currentLevel << "\n\n";
+
     file << "[DIFFICULTY]\n";
     file << static_cast<int>(currentDifficulty) << "\n\n";
-    
+
     file << "[PLAYER]\n";
-    file << player.getX() << " " << player.getY() << " " 
+    file << player.getX() << " " << player.getY() << " "
          << player.getDirX() << " " << player.getDirY() << " "
          << player.getPlaneX() << " " << player.getPlaneY() << " "
          << player.getHp() << "\n\n";
-         
+
     file << "[ENEMIES]\n";
     const auto& enemies = map.getEnemies();
     file << enemies.size() << "\n";
     for (auto& enemy : enemies) {
-        file << enemy->getX() << " " << enemy->getY() << " " 
+        file << enemy->getX() << " " << enemy->getY() << " "
              << enemy->getTexture() << " " << enemy->getHp() << "\n";
     }
     file << "\n";
-    
+
     file << "[ITEMS]\n";
     const auto& items = map.getItems();
     file << items.size() << "\n";
     for (const auto& item : items) {
-        file << item.x << " " << item.y << " " 
+        file << item.x << " " << item.y << " "
              << item.texture << " " << item.isPickedUp << "\n";
     }
     file << "\n";
-    
+
     file << "[INVENTORY]\n";
     file << player.activeWeapon << "\n";
     for(int i = 0; i < 5; i++) file << player.inventoryWeapons[i] << " ";
     file << "\n";
     for(int i = 0; i < 5; i++) file << player.inventoryItems[i] << " ";
     file << "\n";
-    
+
     file.close();
     updateSaveInfoCache();
-    std::cout << "SUKCES: Gra zostala zapisana do " << filename << "!\n";
+    std::cout << "SUKCES: Gra zostala zapisana do " << fullPath << "!\n";
 }
 
 void Game::loadGame(int slot) {
     std::string filename = "save" + std::to_string(slot) + ".txt";
-    std::ifstream file(filename);
+    std::string fullPath = getAssetPath(filename);
+
+    std::ifstream file(fullPath);
     if (!file.is_open()) {
-        std::cout << "Blad: Nie znaleziono pliku " << filename << " do wczytania!\n";
+        std::cout << "Blad: Nie znaleziono pliku " << fullPath << " do wczytania!\n";
         return;
     }
-    
+
     std::string header;
     while (file >> header) {
-        if (header == "[DIFFICULTY]") {
+        if (header == "[LEVEL]") {
+            int l;
+            file >> l;
+            loadLevel(l); // To wywoła map.loadFromFile(getAssetPath(...)) i znajdzie ściany!
+        }
+        else if (header == "[DIFFICULTY]") {
             int d;
             file >> d;
             currentDifficulty = static_cast<Difficulty>(d);
@@ -401,7 +473,7 @@ void Game::loadGame(int slot) {
         else if (header == "[ENEMIES]") {
             size_t count;
             file >> count;
-            map.clearEntities(); // zabezpieczenie usuwajace starych wrogow
+            map.clearEntities();
             for (size_t i = 0; i < count; ++i) {
                 double ex, ey;
                 int tex, hp;
@@ -424,51 +496,51 @@ void Game::loadGame(int slot) {
             int aw;
             if (file >> aw) {
                 player.activeWeapon = aw;
-                for(int i=0; i<5; i++) {
+                for(int i = 0; i < 5; i++) {
                     if(!(file >> player.inventoryWeapons[i])) break;
                 }
-                for(int i=0; i<5; i++) {
+                for(int i = 0; i < 5; i++) {
                     if(!(file >> player.inventoryItems[i])) break;
                 }
             }
         }
     }
-    
+
     file.close();
-    std::cout << "SUKCES: Gra wczytana poprawnie z pliku " << "save" + std::to_string(slot) + ".txt" << "!\n";
+    std::cout << "SUKCES: Gra wczytana poprawnie z pliku " << fullPath << "!\n";
 }
 // rysowanie odpowiedniego ekranu
 void Game::render() {
     if (state == GameState::menu) {
         window.clear();
         window.draw(menuBgSprite);
-        
         window.draw(logoSprite);
-        
+
         playText.setFillColor(selectedMenuOption == 0 ? sf::Color(255, 30, 30) : sf::Color(100, 100, 100));
         playText.setOutlineColor(sf::Color::Black);
         playText.setOutlineThickness(selectedMenuOption == 0 ? 3 : 0);
-        
+
         loadText.setFillColor(selectedMenuOption == 1 ? sf::Color(255, 30, 30) : sf::Color(100, 100, 100));
         loadText.setOutlineColor(sf::Color::Black);
         loadText.setOutlineThickness(selectedMenuOption == 1 ? 3 : 0);
-        
+
         exitText.setFillColor(selectedMenuOption == 2 ? sf::Color(255, 30, 30) : sf::Color(100, 100, 100));
         exitText.setOutlineColor(sf::Color::Black);
         exitText.setOutlineThickness(selectedMenuOption == 2 ? 3 : 0);
-        
-        // zabezpiecz pozycje dla glownego menu
-        playText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 50);
-        loadText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 120);
-        exitText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 190);
-        
+
+        // Zabezpieczenie pozycji dla głównego menu
+        playText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f + 50);
+        loadText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f + 120);
+        exitText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f + 190);
+
         window.draw(playText);
         window.draw(loadText);
         window.draw(exitText);
-        
+
         window.display();
-    } else if (state == GameState::slot_selection) {
-        // rysujemy tlo glownego menu lub gre z przyciemnieniem, w zaleznosci skad przyszlismy
+    }
+    else if (state == GameState::slot_selection) {
+        // Rysujemy tło głównego menu lub grę z przyciemnieniem, w zależności skąd przyszliśmy
         if (slotAction == SlotAction::NewGame || slotAction == SlotAction::LoadGame) {
             window.clear();
             window.draw(menuBgSprite);
@@ -479,15 +551,15 @@ void Game::render() {
             overlay.setFillColor(sf::Color(20, 0, 30, 200));
             window.draw(overlay);
         }
-        
-        // tytul ekranu
+
+        // Tytuł ekranu slotów
         sf::Text title;
         title.setFont(menuFont);
         title.setCharacterSize(50);
         if (slotAction == SlotAction::NewGame) title.setString("Wybierz Slot dla Nowej Gry");
         else if (slotAction == SlotAction::SaveGame) title.setString("Wybierz Slot do Zapisu");
         else title.setString("Wybierz Slot do Odczytu");
-        
+
         sf::FloatRect tRect = title.getLocalBounds();
         title.setOrigin(tRect.left + tRect.width / 2.0f, tRect.top + tRect.height / 2.0f);
         title.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 260);
@@ -495,15 +567,15 @@ void Game::render() {
         title.setOutlineColor(sf::Color::Black);
         title.setOutlineThickness(3);
         window.draw(title);
-        
-        // rysujemy 10 slotow w pionie
+
+        // Rysujemy sloty w pionie
         for (int i = 1; i <= maxSlots; ++i) {
             sf::Text st;
             st.setFont(menuFont);
             st.setCharacterSize(40);
-            
+
             std::string infoStr = cachedSaveInfo[i];
-            
+
             if (i == selectedSlot) {
                 st.setString("> Slot Zapisu " + std::to_string(i) + " " + infoStr + " <");
                 st.setFillColor(sf::Color::Red);
@@ -511,91 +583,166 @@ void Game::render() {
                 st.setString("Slot Zapisu " + std::to_string(i) + " " + infoStr);
                 st.setFillColor(sf::Color(150, 150, 150));
             }
-            
+
             st.setOutlineColor(sf::Color::Black);
             st.setOutlineThickness(3);
-            
+
             sf::FloatRect rect = st.getLocalBounds();
             st.setOrigin(rect.left + rect.width / 2.0f, rect.top + rect.height / 2.0f);
             st.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 180 + (i - 1) * 45);
-            
+
             window.draw(st);
         }
-        
+
         window.display();
-    } else if (state == GameState::difficulty_selection) {
+    }
+    else if (state == GameState::level_selection) {
+        window.clear();
         window.draw(menuBgSprite);
         window.draw(logoSprite);
-        
-        // ciemne tlo poprawiajace czytelnosc tak samo jak w slotach
+
+        // Nakładka stylistyczna (głęboki karmazyn)
         sf::RectangleShape overlay(sf::Vector2f(screenWidth, screenHeight));
         overlay.setFillColor(sf::Color(80, 0, 0, 200));
         window.draw(overlay);
-        
+
+        // Nagłówek ekranu wyboru mapy
+        sf::Text titleText;
+        titleText.setFont(menuFont);
+        titleText.setString("Wybierz Mape");
+        titleText.setCharacterSize(60);
+        titleText.setFillColor(sf::Color::White);
+        titleText.setOutlineColor(sf::Color::Black);
+        titleText.setOutlineThickness(3);
+        sf::FloatRect trect = titleText.getLocalBounds();
+        titleText.setOrigin(trect.left + trect.width / 2.0f, trect.top + trect.height / 2.0f);
+        titleText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 150);
+        window.draw(titleText);
+
+        // Formatowanie i rysowanie opcji map
+        std::vector<sf::Text*> options = { &level1Text, &level2Text, &backText };
+        for (int i = 0; i < 3; ++i) {
+            options[i]->setCharacterSize(50);
+            options[i]->setOutlineColor(sf::Color::Black);
+            options[i]->setOutlineThickness(3);
+
+            // Logika podświetlenia wybranej pozycji
+            if (i == selectedLevelOption) {
+                options[i]->setFillColor(sf::Color::Red);
+                if (i == 0) level1Text.setString("> Mapa 1 <");
+                if (i == 1) level2Text.setString("> Mapa 2 <");
+                if (i == 2) backText.setString("> Powrot do Menu <");
+            } else {
+                options[i]->setFillColor(sf::Color(150, 150, 150));
+                if (i == 0) level1Text.setString("Mapa 1");
+                if (i == 1) level2Text.setString("Mapa 2");
+                if (i == 2) backText.setString("Powrot do Menu");
+            }
+
+            sf::FloatRect orect = options[i]->getLocalBounds();
+            options[i]->setOrigin(orect.left + orect.width / 2.0f, orect.top + orect.height / 2.0f);
+            options[i]->setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 20 + i * 70);
+
+            window.draw(*options[i]);
+        }
+
+        window.display();
+    }
+    else if (state == GameState::difficulty_selection) {
+        window.clear(); // ZMIANA: Dodano wyczyszczenie ekranu przed rysowaniem tła
+        window.draw(menuBgSprite);
+        window.draw(logoSprite);
+
+        sf::RectangleShape overlay(sf::Vector2f(screenWidth, screenHeight));
+        overlay.setFillColor(sf::Color(80, 0, 0, 200));
+        window.draw(overlay);
+
         sf::Text titleText;
         titleText.setFont(menuFont);
         titleText.setString("Wybierz Poziom Trudnosci");
         titleText.setCharacterSize(60);
         titleText.setFillColor(sf::Color::White);
+        titleText.setOutlineColor(sf::Color::Black);
+        titleText.setOutlineThickness(3);
         sf::FloatRect trect = titleText.getLocalBounds();
         titleText.setOrigin(trect.left + trect.width / 2.0f, trect.top + trect.height / 2.0f);
         titleText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 150);
         window.draw(titleText);
-        
-        std::vector<std::string> options = {"Latwy", "Normalny", "Trudny"};
+
+        std::vector<std::string> diffOptions = {"Latwy", "Normalny", "Trudny"};
         for (int i = 0; i < 3; ++i) {
             sf::Text opt;
             opt.setFont(menuFont);
             opt.setCharacterSize(50);
-            
+            opt.setOutlineColor(sf::Color::Black);
+            opt.setOutlineThickness(3);
+
             if (i == selectedDifficultyOption) {
-                opt.setString("> " + options[i] + " <");
+                opt.setString("> " + diffOptions[i] + " <");
                 opt.setFillColor(sf::Color::Red);
             } else {
-                opt.setString(options[i]);
+                opt.setString(diffOptions[i]);
                 opt.setFillColor(sf::Color(150, 150, 150));
             }
-            
+
             sf::FloatRect orect = opt.getLocalBounds();
             opt.setOrigin(orect.left + orect.width / 2.0f, orect.top + orect.height / 2.0f);
             opt.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 20 + i * 70);
             window.draw(opt);
         }
-        
+
         window.display();
-    } else if (state == GameState::playing) {
+    }
+    else if (state == GameState::playing) {
+        window.clear();
         renderer.render(window, player, map);
         window.display();
-    } else if (state == GameState::paused) {
-        // nakladamy ciemna warstwe na gre zeby zrobic wizualny efekt pauzy
+    }
+    else if (state == GameState::paused) {
+        window.clear();
         renderer.render(window, player, map);
-        
+
         sf::RectangleShape overlay(sf::Vector2f(screenWidth, screenHeight));
-        overlay.setFillColor(sf::Color(80, 0, 0, 200)); // gleboki karmazynowy mrok pauzy
+        overlay.setFillColor(sf::Color(80, 0, 0, 200));
         window.draw(overlay);
-        
-        resumeText.setPosition(screenWidth/2.0f, screenHeight/2.0f - 100);
-        saveText.setPosition(screenWidth/2.0f, screenHeight/2.0f - 30);
-        loadText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 40);
-        exitText.setPosition(screenWidth/2.0f, screenHeight/2.0f + 110);
-        
+
+        resumeText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 100);
+        saveText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f - 30);
+        loadText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f + 40);
+        exitText.setPosition(screenWidth / 2.0f, screenHeight / 2.0f + 110);
+
         resumeText.setFillColor(pausedMenuOption == 0 ? sf::Color(255, 30, 30) : sf::Color(150, 150, 150));
         saveText.setFillColor(pausedMenuOption == 1 ? sf::Color(255, 30, 30) : sf::Color(150, 150, 150));
         loadText.setFillColor(pausedMenuOption == 2 ? sf::Color(255, 30, 30) : sf::Color(150, 150, 150));
         exitText.setFillColor(pausedMenuOption == 3 ? sf::Color(255, 30, 30) : sf::Color(150, 150, 150));
-        
+
         resumeText.setOutlineColor(sf::Color::Black); resumeText.setOutlineThickness(pausedMenuOption == 0 ? 3 : 0);
-        saveText.setOutlineColor(sf::Color::Black); saveText.setOutlineThickness(pausedMenuOption == 1 ? 3 : 0);
-        loadText.setOutlineColor(sf::Color::Black); loadText.setOutlineThickness(pausedMenuOption == 2 ? 3 : 0);
-        exitText.setOutlineColor(sf::Color::Black); exitText.setOutlineThickness(pausedMenuOption == 3 ? 3 : 0);
-        
+        saveText.setOutlineColor(sf::Color::Black);   saveText.setOutlineThickness(pausedMenuOption == 1 ? 3 : 0);
+        loadText.setOutlineColor(sf::Color::Black);   loadText.setOutlineThickness(pausedMenuOption == 2 ? 3 : 0);
+        exitText.setOutlineColor(sf::Color::Black);   exitText.setOutlineThickness(pausedMenuOption == 3 ? 3 : 0);
+
         window.draw(resumeText);
         window.draw(saveText);
         window.draw(loadText);
         window.draw(exitText);
-        
+
         window.display();
     }
 }
 
+void Game::loadLevel(int levelNum) {
+    currentLevel = levelNum;
+    std::string path = "textures/levels/level" + std::to_string(currentLevel) + ".txt";
 
+    // ZMIANA: Zamiast podmieniać cały obiekt, ładujemy dane do istniejącego
+    map.loadFromFile(getAssetPath(path));
+
+    // Ustawienie gracza w zależności od wybranej mapy
+    if (currentLevel == 1) {
+        player.setX(22);
+        player.setY(12);
+    } else if (currentLevel == 2) {
+        player.setX(2);
+        player.setY(2);
+    }
+}

@@ -1,4 +1,4 @@
-﻿ #pragma once
+﻿   #pragma once
 // deklaracja zapowiadajaca:
 class Map;
 class Player;
@@ -20,6 +20,7 @@ public:
     virtual void update(double frameTime, Player& player, Map& map);
     virtual void takeDamage(int amount);
     bool isDead() const;
+    int getDropItemTexture() const;
 
     double getX() const { return x; }
     double getY() const { return y; }
@@ -28,6 +29,9 @@ public:
     void setHp(int newHp) { hp = newHp; }
     AnimationState getState() const { return state; }
     bool isMirrored() const { return mirrored; }
+    bool hasSpawnedDrop() const { return dropSpawned; }
+    void setDropSpawned(bool value) { dropSpawned = value; }
+    void setState(AnimationState a)  { state=a;}
 
 protected:
     double x;
@@ -40,6 +44,7 @@ protected:
     double hurtTimer = 0.0;
     double walkTimer = 0.0;
     bool mirrored = false;
+    bool dropSpawned = false;
 };
 
 

@@ -4,7 +4,7 @@
 #include <cmath>
 // inicjalizacja wspolrzednych tekstury i zdrowia przeciwnika
 Enemy::Enemy(double startX, double startY, int textureE)
-    : x(startX), y(startY), texture(textureE), hp(100), attackTimer(0.0), attackDamage(15), state(AnimationState::Idle), hurtTimer(0.0) {}
+    : x(startX), y(startY), texture(textureE), hp(100), attackTimer(0.0), attackDamage(15), state(AnimationState::Idle), hurtTimer(0.0),dropSpawned(false) {}
 
 
 
@@ -108,4 +108,10 @@ bool Enemy::isDead() const {
     return hp <= 0;
 }
 
+int Enemy::getDropItemTexture() const {
 
+    if (texture == 3 || texture == 5 || texture == 0) {
+        return 8;
+    }
+    return 0; // 0 oznacza brak dropu
+}

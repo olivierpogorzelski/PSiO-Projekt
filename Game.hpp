@@ -75,6 +75,16 @@ private:
     
     // trzyma aktualny stan gry
     GameState state;
+
+    std::unique_ptr<Map> worldMap;
+    int currentLevel = 1;
+    int selectedLevelOption = 0;
+
+    sf::Text level1Text;
+    sf::Text level2Text;
+    sf::Text backText;
+
+    void loadLevel(int levelNum);
 };
 
 
