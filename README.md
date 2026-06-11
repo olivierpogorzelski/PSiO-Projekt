@@ -11,6 +11,7 @@ Gra jest nowoczesną reinterpretacją klasyków w postaci *Wolfenstein 3D* i *Do
 ## ⌨️ Sterowanie
 
 | Klawisz | Akcja |
+|---|---|
 | **W** / **⬆️** | Ruch do przodu |
 | **S** / **⬇️** | Ruch do tyłu |
 | **A** / **⬅️** | Obrót kamery w lewo |
