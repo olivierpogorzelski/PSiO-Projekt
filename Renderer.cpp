@@ -1008,9 +1008,9 @@ void Renderer::drawHud(sf::RenderWindow& window, const Player& player) {
     int activeSlot = player.activeWeapon;
     
     // duze sloty (bronie) po prawej (skalibrowane do kratek na nowym hudzie)
-    float slotSpacingX = 90.0f * scaleX;
-    float startSlotsX = hudX + (texSize.x * 0.344f) * scaleX;
-    float startSlotsY = hudY + (texSize.y * 0.405f) * scaleY;
+    float slotSpacingX = 92.0f * scaleX;
+    float startSlotsX = hudX + (texSize.x * 0.342f) * scaleX;
+    float startSlotsY = hudY + (texSize.y * 0.395f) * scaleY;
 
     for(int i = 0; i < 5; i++) {
         float sx = startSlotsX + i * slotSpacingX;
