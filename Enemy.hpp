@@ -1,5 +1,8 @@
-﻿ #pragma once
-// deklaracja zapowiadajaca:
+#pragma once
+#include "GameObject.hpp"
+#include <string>
+
+// deklaracja zapowiadająca:
 class Map;
 class Player;
 
@@ -12,30 +15,28 @@ enum class AnimationState {
 };
 
 // klasa przeciwnika na mapie
-class Enemy {
+class Enemy : public GameObject {
 public:
     Enemy(double startX, double startY, int textureE);
     virtual ~Enemy() = default;
 
-    virtual void update(double frameTime, Player& player, Map& map);
+    bool update(double frameTime, Player& player, Map& map) override;
     virtual void takeDamage(int amount);
     bool isDead() const;
 
-    double getX() const { return x; }
-    double getY() const { return y; }
-    int getTexture() const { return texture; }
+    int getTexture() const override { return texture; }
     int getHp() const { return hp; }
     void setHp(int newHp) { hp = newHp; }
-    AnimationState getState() const { return state; }
-    bool isMirrored() const { return mirrored; }
+    void setAttackTimer(double t) { attackTimer = t; }
+    int getState() const override { return static_cast<int>(state); }
+    bool isMirrored() const override { return mirrored; }
+    std::string getSoundPrefix() const;
 
 protected:
-    double x;
-    double y;
     int texture;
     int hp;
-    double attackTimer = 0.0; // odliczanie do nastepnego ataku
-    int attackDamage = 15;    // ile obrazen zadaje ten przeciwnik
+    double attackTimer = 0.0; // odliczanie do następnego ataku
+    int attackDamage = 15;    // ile obrażeń zadaje ten przeciwnik
     AnimationState state = AnimationState::Idle;
     double hurtTimer = 0.0;
     double walkTimer = 0.0;

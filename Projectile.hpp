@@ -1,26 +1,23 @@
-﻿#pragma once
+#pragma once
+#include "GameObject.hpp"
 
-// deklaracje zapowiadajace
+// deklaracje zapowiadające
 class Player;
 class Map;
 
-class Projectile {
+class Projectile : public GameObject {
 public:
     Projectile(double startX, double startY, double directionX, double directionY, int tex, int dmg, bool playerOwned = false);
 
-    // zwraca true jesli pocisk powinien zostac zniszczony (trafil w cos)
-    bool update(double frameTime, Player& player, Map& map);
+    // zwraca true jeśli pocisk powinien zostać zniszczony (trafił w coś)
+    bool update(double frameTime, Player& player, Map& map) override;
 
-    double getX() const { return x; }
-    double getY() const { return y; }
-    int getTexture() const { return texture; }
+    int getTexture() const override { return texture; }
 
 private:
-    double x;
-    double y;
     double dirX;
     double dirY;
-    double speed;
+    double moveSpeedPxPerSec;
     int texture;
     int damage;
     double hitboxRadius;

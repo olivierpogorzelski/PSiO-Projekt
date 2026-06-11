@@ -1,14 +1,16 @@
-﻿#pragma once
+#pragma once
+#include "GameObject.hpp"
 
-class Item
+class Item : public GameObject
 {
 public:
     Item(float startX, float startY, int textureI);
-    float x;
-    float y;
-    bool isPickedUp;     // flaga informujaca, czy przedmiot juz zebrano (jesli tak, nie renderujemy go i ignorujemy kolizje)
     int texture;
-    bool checkCollision(double playerX, double playerY);
+    
+    // zwraca true, jeśli gracz podniesie item (wtedy usuniemy go z tablicy entities)
+    bool update(double frameTime, Player& player, Map& map) override;
+    
+    int getTexture() const override { return texture; }
 };
 
 

@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SFML_DIR "C:/SFML/SFML-2.5.1/lib/cmake/SFML")
 
 # zmiana szukamy wersji 2.5 komponenty w wersjach dwójki często pisane są z małej litery
-find_package(SFML 2.5 REQUIRED COMPONENTS graphics window system)
+find_package(SFML 2.5 REQUIRED COMPONENTS graphics window system audio)
 
 # TUTAJ: Dodajemy pliki .hpp obok plików .cpp
 add_executable(WolfensteinClone
@@ -32,6 +32,8 @@ add_executable(WolfensteinClone
     GoblinAxe.hpp GoblinAxe.cpp
     SmallDemon.hpp SmallDemon.cpp
     BigDemon.hpp BigDemon.cpp
+    ScoreBoard.hpp ScoreBoard.cpp
+    SoundManager.hpp SoundManager.cpp
 )
 
 # zmiana w sfml 2.5.1 targety nazywają się sfml-graphics z małych liter bez przedrostka sfml
@@ -39,4 +41,5 @@ target_link_libraries(WolfensteinClone PRIVATE
     sfml-graphics
     sfml-window
     sfml-system
+    sfml-audio
 )

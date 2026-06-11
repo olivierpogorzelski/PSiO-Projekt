@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <fstream>
 #include <iostream>
@@ -7,8 +7,9 @@
 #include "Player.hpp"
 #include "Renderer.hpp"
 #include "GameState.hpp"
+#include "ScoreBoard.hpp"
 
-// glowna klasa silnika ktora zarzadza gra
+// główna klasa silnika która zarządza grą
 
 
 enum class SlotAction {
@@ -23,6 +24,10 @@ enum class Difficulty {
     Hard
 };
 
+/**
+ * @class Game
+ * @brief główna klasa zarządzająca całą logiką gry, oknem renderowania oraz stanowymi przejściami (menu, gra, game over).
+ */
 class Game {
 public:
     Game();
@@ -49,7 +54,7 @@ private:
     sf::Clock clock;
     sf::Clock inputClock;
     
-    // menu members
+    // menu
     sf::Font menuFont;
     sf::Texture menuBgTexture;
     sf::Sprite menuBgSprite;
@@ -60,18 +65,24 @@ private:
     sf::Text loadText;
     sf::Text saveText;
     sf::Text resumeText;
+    sf::Text mainMenuText;
     sf::Text slotText;
     int selectedMenuOption;
     int pausedMenuOption;
+    int gameOverMenuOption = 0;
+    int gameWonMenuOption = 0;
     int currentSlot;
     
-    // zmienne nowego ekranu wyboru slotow i trudnosci
+    // zmienne nowego ekranu wyboru slotów i trudności
     SlotAction slotAction;
     int selectedSlot;
     Difficulty currentDifficulty;
     int selectedDifficultyOption;
     std::string cachedSaveInfo[11];
     const int maxSlots = 10;
+    
+    ScoreBoard scoreBoard;
+    bool showScoreBoard;
     
     // trzyma aktualny stan gry
     GameState state;

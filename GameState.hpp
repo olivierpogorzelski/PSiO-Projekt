@@ -1,12 +1,13 @@
-﻿#pragma once
+#pragma once
+#pragma once
 
-// stany gry pozwalajace na zarzadzanie glowna petla
+// stany gry pozwalające na zarządzanie główną petlą
 enum class GameState {
     menu,
     playing,
     paused,
     slot_selection,
-    difficulty_selection
+    difficulty_selection,
+    gameOver,
+    gameWon
 };
-
-
